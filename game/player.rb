@@ -1,9 +1,15 @@
 require_relative "thing"
 
 class Player < Thing
-  attr_accessor :board
+  attr_accessor :board, :inventory, :reach
 
-  REACH = 3
+  
+  def initialize(x, y, icon)
+    super(x, y, icon)
+    
+    @inventory = []
+    @reach = 3
+  end
 
   def tick
     did_move = !@jumping && !grounded? && move(0, +1) # apply gravity if in the air
@@ -34,6 +40,10 @@ class Player < Thing
   end
 
   def can_reach?(rx, ry)
-    (@x - rx).abs <= REACH && (@y - ry).abs <= REACH
+    (@x - rx).abs <= reach && (@y - ry).abs <= reach
+  end
+
+  def can_mine?(rx, ry)
+    true
   end
 end

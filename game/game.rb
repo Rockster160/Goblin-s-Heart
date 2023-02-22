@@ -73,6 +73,8 @@ class Game
         pencil.paint(cell_char, board_coord, fg, bg: bg)
       end
     end
+
+    puts(@player.inventory)
   end
 
   def input(key) # Triggers only once per tick with the most recent key pressed
@@ -93,7 +95,29 @@ class Game
     when /mousedown\(/
       _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
-      @board.set([x, y], Block::AIR) if @player.can_reach?(x, y)
+
+      if @player.can_reach?(x, y) && @player.can_mine?(x, y)
+        block = @board.at(x, y)
+
+        #  mining ore
+        if block == Block::ORE[:char]
+          @player.inventory << {name: "ore", weight: 1}
+
+          # drop stone sometimes when mining ore
+          if rand(10) == 0
+            @player.inventory << {name: "stone", weight: 1}
+          end
+        end
+
+        # mining stone
+        # TODO extract this into better drop rate logic
+        if block == Block::STONE[:char] && rand(10) >= 2
+          @player.inventory << {name: "stone", weight: 1}
+        end
+
+        @board.set([x, y], Block::AIR)
+      end
+      
     when /mousedownShift\(/
       _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
