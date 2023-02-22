@@ -19,14 +19,14 @@ class Pencil
   end
 
   # Change all instances of old_str into new_str and color it
-  def sprite(old_str, new_str, color, bg: nil)
+  def replace(old_str, new_str, color, bg: nil)
     str = Draw.draw(new_str)
     str = Colorize.color(bg, str, :bg) if bg
     str = Colorize.color(color, str, :fg)
     @sprites[old_str.to_s] = str
   end
 
-  def color_sprite(raw_str, color, bg: nil)
+  def recolor(raw_str, color, bg: nil)
     str = Draw.draw(raw_str)
     str = Colorize.color(bg, str, :bg) if bg
     str = Colorize.color(color, str, :fg)
@@ -34,7 +34,7 @@ class Pencil
   end
 
   # Place char at coords
-  def object(str, coord, color=nil, bg: nil)
+  def paint(str, coord, color=nil, bg: nil)
     str = Draw.draw(str)
     str = Colorize.color(bg, str, :bg) if bg
     str = Colorize.color(color, str, :fg)

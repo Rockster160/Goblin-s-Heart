@@ -27,33 +27,50 @@ class Game
     miny = @player.y - VIS_RANGE
     maxy = @player.y + VIS_RANGE
 
-    brown = rgb(244, 164, 96)
-    unshown = rgb(50, 50, 50)
+
+
+
+    color_brown   = rgb(244, 164, 96)
+    color_unshown = "#090a14"
+    color_stone   = "#202e37"
+    color_dirt    = "#884b2b"
+    color_sand    = "#e8c170"
+    color_ore     = "#c7cfcc"
+    color_air     = "#a4dddb"
+    color_player  = "#253a5e"
 
     visible_blocks = []
     (minx..maxx).map { |x| (miny..maxy).map { |y|
-      cell = @board.at(x, y)
-      next unless Block::SOLIDS.include?(cell)
+      cell_char = @board.at(x, y)
+      # TODO refactor this so board at checks the map
+      # not the rendered board, in case we don't wanne render the right tile yet
+      next unless Block::SOLIDS.any? { |solid| solid[:char] == cell_char }
 
       coord = [x, y]
+      
       if @board.exposed?(*coord)
-        fg, bg = brown, nil
-        # FIXME - background brown is slightly different to normal brown
-        fg, bg = :silver, brown if cell == Block::ORE
+        fg, bg = color_stone, color_stone
+        # fg, bg = color_ore, color_stone if cell_char == Block::ORE
+
         board_coord = [VIS_RANGE + coord[0] - @player.x, VIS_RANGE + coord[1] - @player.y]
-        visible_blocks << [cell, board_coord, fg, bg]
+        visible_blocks << [cell_char, board_coord, fg, bg]
       end
     } }.flatten.compact
 
     Draw.board(@board.area(minx..maxx, miny..maxy)) do |pencil|
-      pencil.bg = :grey
-      pencil.object(@player.icon, [VIS_RANGE, VIS_RANGE], :cyan)
-      pencil.color_sprite(Block::LADDER, brown)
 
-      pencil.sprite(Block::GROUND, Block::GROUND, unshown)
-      pencil.sprite(Block::ORE, Block::GROUND, unshown)
-      visible_blocks.each do |cell, board_coord, fg, bg|
-        pencil.object(cell, board_coord, fg, bg: bg)
+      pencil.bg = color_air
+      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], color_player)
+      pencil.recolor(Block::LADDER[:char], color_brown)
+      pencil.recolor(Block::ORE[:char], color_unshown, bg: color_unshown)
+      pencil.recolor(Block::STONE[:char], color_unshown, bg: color_unshown)
+
+      # puts(visible_blocks)
+      visible_blocks.each do |cell_char, board_coord, fg, bg|
+        fg, bg = color_ore, color_stone if cell_char == Block::ORE[:char]
+        fg, bg = color_stone, color_stone if cell_char == Block::STONE[:char]
+
+        pencil.paint(cell_char, board_coord, fg, bg: bg)
       end
     end
   end
@@ -77,8 +94,8 @@ class Game
       _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
       @board.set([x, y], Block::AIR) if @player.can_reach?(x, y)
-    when /mousedownCmd\(/
-      _, drawx, drawy = key.to_s.match(/mousedownCmd\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
+    when /mousedownShift\(/
+      _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
       @board.set([x, y], Block::LADDER) if @player.can_reach?(x, y)
     end

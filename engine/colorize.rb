@@ -24,7 +24,7 @@ module Colorize
       if c.count(",") == 2
         name_to_rgb(:red)
       else
-        name_to_rgb(c) || hex_to_rgb(c)
+        color_list[c.to_s.to_sym] || hex_to_rgb(c)
       end
     end
   end

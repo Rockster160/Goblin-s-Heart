@@ -25,14 +25,14 @@ class InfiniBoard
 
   def set(point, val)
     row = @grid[point[1]]
-    row[point[0]] = val
+    row[point[0]] = val[:char]
     @grid[point[1]] = row
 
     @minx = point[0] if @minx.nil? || point[0] < @minx
     @maxx = point[0] if @maxx.nil? || point[0] > @maxx
     @miny = point[1] if @miny.nil? || point[1] < @miny
     @maxy = point[1] if @maxy.nil? || point[1] > @maxy
-    val
+    val[:char]
   end
 
   def area(xrange, yrange)

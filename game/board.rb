@@ -5,12 +5,12 @@ class Board < InfiniBoard
   def self.create
     new(->(x, y) {
       return Block::AIR if y < GROUND_LEVEL # negative is up, positive is down
-      rand(100) < (ORE_RATIO*100) ? Block::ORE : Block::GROUND
+      rand(100) < (ORE_RATIO*100) ? Block::ORE : Block::STONE
     })
   end
 
   def solid?(x, y)
-    Block::SOLIDS.include?(at(x, y))
+    Block::SOLIDS.any? { |solid| solid[:char] == at(x, y) }
   end
 
   def exposed?(x, y)

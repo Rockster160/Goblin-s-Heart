@@ -25,7 +25,7 @@ class Player < Thing
   end
 
   def grounded?
-    !@jumping && @board.at(@x, @y+1) != Block::AIR || @board.at(@x, @y) == Block::LADDER
+    !@jumping && @board.at(@x, @y+1) != Block::AIR[:char] || @board.at(@x, @y) == Block::LADDER[:ladder]
   end
 
   def jump
