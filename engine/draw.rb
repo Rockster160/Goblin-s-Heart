@@ -126,11 +126,11 @@ module Draw
   end
 
   def format(text, length)
-    width = cell_width
+    width = length || cell_width
     char_width = 2 if text.to_s.match?(/\p{Emoji_Presentation}/iu)
     char_width ||= ($special_chars[text] || 1)
 
-    text.to_s.ljust(char_width - 1, " ")
+    text.to_s.ljust(width -(char_width - 1), " ")
   end
 
   def draw(text, opts={})

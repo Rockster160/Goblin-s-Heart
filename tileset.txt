@@ -17,6 +17,7 @@ dropped_resource: ⬢
 teleport_pad    : ⁜ ※
 air             : ·
 grass           : 🮑
+ladder          : ╂╂
 
 extras/unused   :
 ⢾⡷⣏⣹⣿⣿⁙⁚░▞▗▘

@@ -13,7 +13,8 @@ class Game
 
   def initialize
     @board = Board.create
-    @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
+    # @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
+    @player = Player.new(0, Board::GROUND_LEVEL-1, "🯅")
     @player.board = @board
   end
 
@@ -37,7 +38,8 @@ class Game
     color_sand    = "#e8c170"
     color_ore     = "#c7cfcc"
     color_air     = "#a4dddb"
-    color_player  = "#253a5e"
+    color_player_bg  = "#a8ca58"
+    color_player  = "#10141f"
 
     visible_blocks = []
     (minx..maxx).map { |x| (miny..maxy).map { |y|
@@ -60,7 +62,7 @@ class Game
     Draw.board(@board.area(minx..maxx, miny..maxy)) do |pencil|
 
       pencil.bg = color_air
-      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], color_player)
+      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], color_player, bg: color_player_bg)
       pencil.recolor(Block::LADDER[:char], color_brown)
       pencil.recolor(Block::ORE[:char], color_unshown, bg: color_unshown)
       pencil.recolor(Block::STONE[:char], color_unshown, bg: color_unshown)
