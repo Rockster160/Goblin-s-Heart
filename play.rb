@@ -2,7 +2,7 @@ require_relative "game/game"
 
 # █⢎⡱⢾⡷⣏⣹⢕⢕⣿⣿⁅⁆⁙⁚⁜※∆∇░▒▓▞▗▘
 # ＃＠～＊☰⬢
-Draw.register_special_chars(2, "＃🯅＠～＊☰⬢".chars)
+Draw.register_special_chars(2, "＃＠～＊☰⬢".chars)
 
 game = Game.new
 Engine.start(
