@@ -4,6 +4,15 @@ require "io/wait"
 $mousecoord = []
 module Input
   module_function
+  @@keys_down = []
+
+  def keys_down
+    @@keys_down
+  end
+
+  def release_keys
+    @@keys_down = []
+  end
 
   def show_cursor
     print "\e[?25h"
@@ -56,6 +65,7 @@ module Input
           char << STDIN.read_nonblock(2) rescue nil
         end
         key = input(char) if char
+        Input.keys_down << key if key
         engine.last_key = key if key
         STDIN.getc while STDIN.ready?
       end

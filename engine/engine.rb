@@ -6,7 +6,7 @@ require "pry-rails"
 class Engine
   extend Draw
   include Draw
-  attr_accessor :last_key, :tick_time
+  attr_accessor :tick_time, :last_key
   # [
   #   ENV["LINES"].to_i.nonzero? || 25,
   #   ENV["COLUMNS"].to_i.nonzero? || 80,
@@ -28,12 +28,12 @@ class Engine
   end
 
   def self.start(callbacks)
-    @@engine = new(callbacks)
-    @@engine.go
+    $engine = new(callbacks)
+    $engine.go
   end
 
   def self.method_missing(method, *args, &block)
-    @@engine.send(method)
+    $engine.send(method)
   end
 
   def goal_fps
@@ -53,7 +53,7 @@ class Engine
 
   def self.postpause
     $running = true
-    $inputthread = Input.inputthread(@@engine)
+    $inputthread = Input.inputthread($engine)
     Input.mode(:game)
   end
 
@@ -99,8 +99,11 @@ class Engine
     return unless $running
     # call once every FPS
     @tick += 1
-    @input_callback&.call(@last_key) if @last_key
+    Input.keys_down.uniq.each do |key|
+      @input_callback&.call(key) if key
+    end
     @last_key = nil
+    Input.release_keys
     @tick_callback&.call
     @draw_callback&.call
     sleep @tick_time if @tick_time && @tick_time > 0

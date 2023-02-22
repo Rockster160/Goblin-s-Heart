@@ -1,6 +1,6 @@
 require_relative "../engine/engine"
 require_relative "../engine/infini_board"
-# require "pry-rails"; binding.pry
+
 Dir.chdir("./game")
 Dir["*.rb"].each do |file|
   require_relative "./#{file}" if File.file?(file)
@@ -87,7 +87,8 @@ class Game
     puts(Block::LADDER[:item], " ", ladderCount)
   end
 
-  def input(key) # Triggers only once per tick with the most recent key pressed
+  def input(key)
+    # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause
     case key
     when :a, :left  then @player.move(-1,  0)
     when :d, :right then @player.move(+1,  0)
