@@ -40,6 +40,8 @@ class Pencil
     str = Colorize.color(color, str, :fg)
     @objects[coord.to_s] = str
   end
+
+  # TODO create pencil.write for adding text overlay, someday
 end
 
 $special_chars = {} # init global var

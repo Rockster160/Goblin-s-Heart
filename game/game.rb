@@ -72,8 +72,17 @@ class Game
         fg, bg = color_ore, color_stone if cell_char == Block::ORE[:char]
         fg, bg = color_stone, color_stone if cell_char == Block::STONE[:char]
 
+        # TODO paint the blocks you can reach a diff color
         pencil.paint(cell_char, board_coord, fg, bg: bg)
       end
+
+
+      mode_char = "⬌" if @player.mode == Modes::WALK
+      mode_char = "⸕" if @player.mode == Modes::MINE
+
+      coords = [1, 1]
+      fg, bg = "#090a14", color_air
+      pencil.paint(mode_char, coords, fg, bg: bg)
     end
 
 
@@ -87,6 +96,7 @@ class Game
     puts(Block::LADDER[:item], " ", ladderCount)
   end
 
+
   def input(key)
     # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause
     case key
@@ -94,6 +104,8 @@ class Game
     when :d, :right then @player.move(+1,  0)
     when :w, :up, :space then @player.jump
     when :s, :down  then @player.move( 0, +1)
+    when :e        then @player.mode = Modes::MINE
+    when :q        then @player.mode = Modes::WALK
     else
       # return puts(key) # uncomment for debugging to see which events are being triggered
     end
@@ -107,27 +119,7 @@ class Game
       _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
 
-      if @player.can_reach?(x, y) && @player.can_mine?(x, y)
-        block = @board.at(x, y)
-
-        #  mining ore
-        if block == Block::ORE[:char]
-          @player.inventory << {name: "ore", weight: 1}
-
-          # drop stone sometimes when mining ore
-          if rand(10) == 0
-            @player.inventory << {name: "stone", weight: 1}
-          end
-        end
-
-        # mining stone
-        # TODO extract this into better drop rate logic
-        if block == Block::STONE[:char] && rand(10) >= 2
-          @player.inventory << {name: "stone", weight: 1}
-        end
-
-        @board.set([x, y], Block::AIR)
-      end
+      @player.try_mine(x, y)
       
     when /mousedownShift\(/
       _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)

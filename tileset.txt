@@ -18,6 +18,8 @@ teleport_pad    : ⁜ ※
 air             : ·
 grass           : 🮑
 ladder          : ╂╂
+mining          : ⸕
+walking         : ⬌
 
 extras/unused   :
 ⢾⡷⣏⣹⣿⣿⁙⁚░▞▗▘
