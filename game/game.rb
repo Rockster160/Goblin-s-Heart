@@ -1,6 +1,6 @@
 require_relative "../engine/engine"
 require_relative "../engine/infini_board"
-# require "pry-rails"; binding.pry
+
 Dir.chdir("./game")
 Dir["*.rb"].each do |file|
   require_relative "./#{file}" if File.file?(file)
@@ -58,7 +58,8 @@ class Game
     end
   end
 
-  def input(key) # Triggers only once per tick with the most recent key pressed
+  def input(key)
+    # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause
     case key
     when :a, :left  then @player.move(-1,  0)
     when :d, :right then @player.move(+1,  0)
@@ -77,8 +78,8 @@ class Game
       _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
       @board.set([x, y], Block::AIR) if @player.can_reach?(x, y)
-    when /mousedownCmd\(/
-      _, drawx, drawy = key.to_s.match(/mousedownCmd\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
+    when /mousedownShift\(/
+      _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
       @board.set([x, y], Block::LADDER) if @player.can_reach?(x, y)
     end
