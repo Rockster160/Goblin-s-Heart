@@ -19,38 +19,55 @@ class Player < Thing
   end
 
   def tick
-    did_move = !@jumping && !grounded? && move(0, +1) # apply gravity if in the air
+    did_move = !@jumping && !grounded? && try_walk(0, +1) # apply gravity if in the air
     @jumping = false # reset jumping state so gravity can apply again
     did_move
   end
 
   def move(relx, rely)
 
-
     try_mine(relx, rely) if mode == Modes::MINE
      
-    if mode == Modes::WALK
+    try_walk(relx, rely) if mode == Modes::WALK
+  end
 
-      nx, ny = [x + relx, y + rely]
-      # Moving sideways, but there is a block in the way.
-      # Check the space above instead and attempt to auto-jump
-      ny -= 1 if relx != 0 && @board.solid?(nx, ny)
+  def do_physics()
+    below_x, below_y = x, y + 1
+    block = @board.at(below_x, below_y)
+    if block == Block::AIR[:char]
+      self.coord = [below_x, below_y]
 
-      # There's a block in the way. Cannot move
-      return false if @board.solid?(nx, ny)
-
-      self.coord = [nx, ny]
-      true
+      # recurse for large falls
+      do_physics()
     end
   end
 
-  # TODO this is sleepy code, take a look at it later
+  def try_walk(relx, rely)
+    nx, ny = [x + relx, y + rely]
+    # Moving sideways, but there is a block in the way.
+    # Check the space above instead and attempt to auto-jump
+    ny -= 1 if relx != 0 && @board.solid?(nx, ny)
+
+    # There's a block in the way. Cannot move
+    return false if @board.solid?(nx, ny)
+
+    self.coord = [nx, ny]
+
+    true
+  end
+
   # FIXME somehow this offset the clicky mining
-  # FIXME physics do not apply when in mining mode?
   def try_mine(relx, rely)
     block_x, block_y = relx + x, rely + y 
-    if can_reach?(block_x, block_y) && can_mine?(block_x, block_y)
-      block = @board.at(block_x, block_y)
+    block = @board.at(block_x, block_y)
+    
+    # moving into empty space
+    if block == Block::AIR[:char]
+      # FIXME i don't think this jumping is working properly
+      rely == -1 ? jump() : try_walk(relx, rely)
+
+
+    elsif can_reach?(block_x, block_y) && can_mine?(block_x, block_y)
 
       #  mining ore
       if block == Block::ORE[:char]
@@ -70,6 +87,8 @@ class Player < Thing
 
       @board.set([block_x, block_y], Block::AIR)
     end
+
+    do_physics()
   end
 
 
@@ -79,7 +98,7 @@ class Player < Thing
 
   def jump
     # @jumping prevents gravity from applying the next tick
-    @jumping = true if grounded? && move(0, -1)
+    @jumping = true if grounded? && try_walk(0, -1) # && move(0, -1)
   end
 
   def can_reach?(rx, ry)

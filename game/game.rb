@@ -102,10 +102,11 @@ class Game
     case key
     when :a, :left  then @player.move(-1,  0)
     when :d, :right then @player.move(+1,  0)
-    when :w, :up, :space then @player.jump
+    when :space     then @player.jump
+    when :w, :up    then @player.move(0, -1)
     when :s, :down  then @player.move( 0, +1)
-    when :e        then @player.mode = Modes::MINE
-    when :q        then @player.mode = Modes::WALK
+    when :e         then @player.mode = Modes::MINE
+    when :q         then @player.mode = Modes::WALK
     else
       # return puts(key) # uncomment for debugging to see which events are being triggered
     end
