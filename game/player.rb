@@ -19,18 +19,27 @@ class Player < Thing
   end
 
   def tick
-    did_move = !@jumping && !grounded? && move(0, +1) # apply gravity if in the air
+    did_move = !@jumping && !grounded? && try_walk(0, +1) # apply gravity if in the air
     @jumping = false # reset jumping state so gravity can apply again
     did_move
   end
 
   def move(relx, rely)
 
-
     try_mine(relx, rely) if mode == Modes::MINE
      
     try_walk(relx, rely) if mode == Modes::WALK
+  end
 
+  def do_physics()
+    below_x, below_y = x, y + 1
+    block = @board.at(below_x, below_y)
+    if block == Block::AIR[:char]
+      self.coord = [below_x, below_y]
+
+      # recurse for large falls
+      do_physics()
+    end
   end
 
   def try_walk(relx, rely)
@@ -43,19 +52,20 @@ class Player < Thing
     return false if @board.solid?(nx, ny)
 
     self.coord = [nx, ny]
+
     true
   end
 
-  # TODO this is sleepy code, take a look at it later
   # FIXME somehow this offset the clicky mining
-  # FIXME physics do not apply when in mining mode?
   def try_mine(relx, rely)
     block_x, block_y = relx + x, rely + y 
     block = @board.at(block_x, block_y)
-
+    
     # moving into empty space
     if block == Block::AIR[:char]
-      try_walk(relx, rely)
+      # FIXME i don't think this jumping is working properly
+      rely == -1 ? jump() : try_walk(relx, rely)
+
 
     elsif can_reach?(block_x, block_y) && can_mine?(block_x, block_y)
 
@@ -77,6 +87,8 @@ class Player < Thing
 
       @board.set([block_x, block_y], Block::AIR)
     end
+
+    do_physics()
   end
 
 
@@ -86,7 +98,7 @@ class Player < Thing
 
   def jump
     # @jumping prevents gravity from applying the next tick
-    @jumping = true if grounded? && move(0, -1)
+    @jumping = true if grounded? && try_walk(0, -1) # && move(0, -1)
   end
 
   def can_reach?(rx, ry)
