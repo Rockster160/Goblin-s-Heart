@@ -20,7 +20,7 @@ grass           : 🮑
 
 extras/unused   :
 ⢾⡷⣏⣹⣿⣿⁙⁚░▞▗▘
-＃＊
+＃＊⁅⁆
 
 doorways:
 // lighter than bg

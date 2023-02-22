@@ -74,7 +74,15 @@ class Game
       end
     end
 
-    puts(@player.inventory)
+
+    # TODO extract this into a better UI
+    oreCount = @player.inventory.count {|item| item[:name] == "ore"}
+    stoneCount = @player.inventory.count {|item| item[:name] == "stone"}
+    ladderCount = @player.inventory.count {|item| item[:name] == "ladder"}
+
+    puts(Block::ORE[:item], " ",oreCount)
+    puts(Block::STONE[:item], " ", stoneCount)
+    puts(Block::LADDER[:item], " ", ladderCount)
   end
 
   def input(key) # Triggers only once per tick with the most recent key pressed
