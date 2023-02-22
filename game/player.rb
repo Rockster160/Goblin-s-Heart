@@ -29,19 +29,21 @@ class Player < Thing
 
     try_mine(relx, rely) if mode == Modes::MINE
      
-    if mode == Modes::WALK
+    try_walk(relx, rely) if mode == Modes::WALK
 
-      nx, ny = [x + relx, y + rely]
-      # Moving sideways, but there is a block in the way.
-      # Check the space above instead and attempt to auto-jump
-      ny -= 1 if relx != 0 && @board.solid?(nx, ny)
+  end
 
-      # There's a block in the way. Cannot move
-      return false if @board.solid?(nx, ny)
+  def try_walk(relx, rely)
+    nx, ny = [x + relx, y + rely]
+    # Moving sideways, but there is a block in the way.
+    # Check the space above instead and attempt to auto-jump
+    ny -= 1 if relx != 0 && @board.solid?(nx, ny)
 
-      self.coord = [nx, ny]
-      true
-    end
+    # There's a block in the way. Cannot move
+    return false if @board.solid?(nx, ny)
+
+    self.coord = [nx, ny]
+    true
   end
 
   # TODO this is sleepy code, take a look at it later
@@ -49,8 +51,13 @@ class Player < Thing
   # FIXME physics do not apply when in mining mode?
   def try_mine(relx, rely)
     block_x, block_y = relx + x, rely + y 
-    if can_reach?(block_x, block_y) && can_mine?(block_x, block_y)
-      block = @board.at(block_x, block_y)
+    block = @board.at(block_x, block_y)
+
+    # moving into empty space
+    if block == Block::AIR[:char]
+      try_walk(relx, rely)
+
+    elsif can_reach?(block_x, block_y) && can_mine?(block_x, block_y)
 
       #  mining ore
       if block == Block::ORE[:char]
