@@ -31,16 +31,19 @@ class Player < Thing
     did_move # Return whether or not gravity applied
   end
 
-  def place_ladder(ladder_x, ladder_y)
-    return unless can_reach?(ladder_x, ladder_y)
+  def place_ladder(rel_x, rel_y)
+    return unless can_reach?(rel_x, rel_y)
+    map_x, map_y = rel_x + @x, rel_y + @y
+    return unless @board.air?(map_x, map_y) # Cannot place on top of an existing block
+    return if @board.air?(map_x, map_y+1) # Must have a non-air block below
 
-    @board.set([ladder_x, ladder_y], Block::LADDER[:char])
+    @board.set([map_x, map_y], Block::LADDER[:char])
   end
 
-  def try_action(act_x, act_y)
+  def try_action(rel_x, rel_y)
     case @mode
-    when Modes::WALK then try_move(act_x, act_y)
-    when Modes::MINE then try_mine(act_x, act_y)
+    when Modes::WALK then try_move(rel_x, rel_y)
+    when Modes::MINE then try_mine(rel_x, rel_y)
     end
   end
 
@@ -78,7 +81,7 @@ class Player < Thing
     if block == Block::AIR[:char]
       # FIXME I don't think this jumping is working properly
       # map_y == -1 ? jump : try_walk(map_x, map_y)
-    elsif can_mine?(map_x, map_y)
+    elsif can_mine?(rel_x, rel_y)
       #  mining ore
       if block == Block::ORE[:char]
         @inventory << { name: :ore, weight: 1 }
@@ -101,7 +104,7 @@ class Player < Thing
   end
 
   def can_reach?(rel_x, rel_y)
-    Calc.distance(@x, @y, rel_x, rel_y) <= reach
+    Calc.distance(@x, @y, @x + rel_x, @y + rel_y) <= reach
   end
 
   def can_mine?(rel_x, rel_y)

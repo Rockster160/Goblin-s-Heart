@@ -13,8 +13,8 @@ class Game
 
   def initialize
     @board = Board.create
-    @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
-    # @player = Player.new(0, Board::GROUND_LEVEL-1, " 🯅")
+    # @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
+    @player = Player.new(0, Board::GROUND_LEVEL-1, " 🯅")
     @player.board = @board
   end
 
@@ -28,16 +28,6 @@ class Game
     miny = @player.y - VIS_RANGE
     maxy = @player.y + VIS_RANGE
 
-    color_brown   = rgb(244, 164, 96)
-    color_unshown = "#090a14"
-    color_stone   = "#202e37"
-    color_dirt    = "#884b2b"
-    color_sand    = "#e8c170"
-    color_ore     = "#c7cfcc"
-    color_air     = "#a4dddb"
-    color_player_bg  = "#a8ca58"
-    color_player  = "#10141f"
-
     visible_blocks = []
     (minx..maxx).map { |map_x| (miny..maxy).map { |map_y|
       cell_char = @board.at(map_x, map_y)
@@ -47,8 +37,8 @@ class Game
       next unless Block::SOLIDS.any? { |solid| solid[:char] == cell_char }
 
       if @board.exposed?(map_x, map_y)
-        fg, bg = color_stone, color_stone
-        fg, bg = color_ore, color_stone if cell_char == Block::ORE[:char]
+        fg, bg = Palette.stone, Palette.stone
+        fg, bg = Palette.ore, Palette.stone if cell_char == Block::ORE[:char]
 
         drawn_coord = map_to_drawn(map_x, map_y)
         visible_blocks << [cell_char, drawn_coord, fg, bg]
@@ -56,16 +46,16 @@ class Game
     } }.flatten.compact
 
     Draw.board(@board.area(minx..maxx, miny..maxy)) do |pencil|
-      pencil.bg = color_air
-      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], color_player, bg: color_player_bg)
-      pencil.recolor(Block::LADDER[:char], color_brown)
-      pencil.recolor(Block::ORE[:char], color_unshown, bg: color_unshown)
-      pencil.recolor(Block::STONE[:char], color_unshown, bg: color_unshown)
+      pencil.bg = Palette.air
+      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], Palette.player, bg: Palette.player_bg)
+      pencil.recolor(Block::LADDER[:char], Palette.brown)
+      pencil.recolor(Block::ORE[:char], Palette.unshown, bg: Palette.unshown)
+      pencil.recolor(Block::STONE[:char], Palette.unshown, bg: Palette.unshown)
 
       # puts(visible_blocks)
       visible_blocks.each do |cell_char, board_coord, fg, bg|
-        fg, bg = color_ore, color_stone if cell_char == Block::ORE[:char]
-        fg, bg = color_stone, color_stone if cell_char == Block::STONE[:char]
+        fg, bg = Palette.ore, Palette.stone if cell_char == Block::ORE[:char]
+        fg, bg = Palette.stone, Palette.stone if cell_char == Block::STONE[:char]
 
         # TODO paint the blocks you can reach a diff color
         pencil.paint(cell_char, board_coord, fg, bg: bg)
@@ -108,14 +98,14 @@ class Game
     case key
     when /mousedown\(/
       _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
-      x, y = drawn_to_rel(drawx, drawy)
+      rel_x, rel_y = drawn_to_rel(drawx, drawy)
 
-      @player.try_mine(x, y)
+      @player.try_mine(rel_x, rel_y)
     when /mousedownShift\(/
       _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
-      x, y = drawn_to_rel(drawx, drawy)
+      rel_x, rel_y = drawn_to_rel(drawx, drawy)
 
-      @player.place_ladder(x, y)
+      @player.place_ladder(rel_x, rel_y)
     end
   end
 
