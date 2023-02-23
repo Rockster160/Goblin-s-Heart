@@ -9,6 +9,10 @@ class Board < InfiniBoard
     })
   end
 
+  def clear(x, y)
+    set([x, y], Block::AIR)
+  end
+
   def air?(x, y)
     at(x, y).is?(Air)
   end

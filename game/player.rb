@@ -80,7 +80,7 @@ class Player
 
     if can_mine?(rel_x, rel_y)
       @inventory += [block.drops].flatten.compact
-      @board.set([map_x, map_y], Block::AIR)
+      @board.clear(map_x, map_y)
     end
   end
 
