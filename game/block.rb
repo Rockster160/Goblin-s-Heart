@@ -4,6 +4,7 @@ require_relative "palette"
 class Block
   attr_accessor :item, :char, :fg, :bg, :weight, :solid, :visible
   @opts = {}
+  @@block_types = {}
   # @@blocks = [] # All blocks
   # @blocks = [] # Blocks per class
 
@@ -12,11 +13,20 @@ class Block
   #   @@blocks << block
   # end
 
-  def self.register(class_opts)
-    Class.new(self) do
-      block_data **class_opts
-    end
+  def self.register(klass_name, class_opts)
+    klass = Object.const_set(
+      klass_name.to_s.capitalize,
+      Class.new(self) do
+        block_data(**class_opts)
+      end
+    )
+    @@block_types[klass_name] = klass.new(visible: true)
+    @@block_types["#{klass_name}_invis".to_sym] = klass.new unless class_opts[:visible]
   end
+
+  def self.base_from_type(klass_sym) = @@block_types[klass_sym]
+  def self.base = @@block_types[self.name.downcase.to_sym]
+  def self.base_invis = @@block_types["#{self.name.downcase}_invis".to_sym]
 
   def self.block_data(opts)
     @opts = opts
@@ -30,18 +40,25 @@ class Block
   end
 
   def self.opts = @opts
-  # def self.drops(drop_proc) = @opts[:drops] = drop_proc
   def self.[](opt) = @opts[opt]
   def copts = self.class.opts
 
-  def initialize
-    @item = copts[:item] || ""
-    @char = copts[:char] || "."
-    @fg = copts[:fg] || nil
-    @bg = copts[:bg] || nil
-    @weight = copts[:weight] || 1
-    @solid = copts.key?(:solid) ? copts[:solid] : true
-    @visible = copts.key?(:visible) ? copts[:visible] : false
+  def initialize(opts={})
+    @item = opts[:item] || copts[:item] || ""
+    @char = opts[:char] || copts[:char] || "."
+    @fg = opts[:fg] || copts[:fg] || nil
+    @bg = opts[:bg] || copts[:bg] || nil
+    @weight = opts[:weight] || copts[:weight] || 1
+    if opts.key?(:solid)
+      @solid = opts[:solid]
+    else
+      @solid = copts.key?(:solid) ? copts[:solid] : true
+    end
+    if opts.key?(:visible)
+      @visible = opts[:visible]
+    else
+      @visible = copts.key?(:visible) ? copts[:visible] : false
+    end
     # self.class.add(self)
   end
 
@@ -55,9 +72,13 @@ class Block
   def to_s = @visible ? copts[:visible_block] : copts[:invisible_block]
 end
 
-Air = Block.register(item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
-Block::AIR = Air.new # Used so we only have one reference to air. Save some memory.
-Stone = Block.register(
+Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
+Block.register(:sand, item: "", char: "▒▒", fg: Palette.sand)#, gravity: true
+Block.register(:dirt, item: "", char: "▓▓", fg: Palette.dirt)
+# Block.register(:grass, item: "", char: "▔▔", fg: Palette.grass)
+Block.register(:ladder, item: "ℍ", char: "╂╂", fg: Palette.brown, solid: false)
+Block.register(
+  :stone,
   item: "⬢",
   char: "  ",
   bg: Palette.stone,
@@ -65,7 +86,8 @@ Stone = Block.register(
     stack << Stone.new if Calc.rand_percent(10)
   }
 )
-Ore = Block.register(
+Block.register(
+  :ore,
   item: "⠶",
   char: "⠰⠆",
   fg: Palette.ore,
@@ -75,7 +97,3 @@ Ore = Block.register(
     stack << Stone.new if Calc.rand_percent(10) # Drop stone sometimes when mining ore
   }
 )
-Sand = Block.register(item: "", char: "▒▒", fg: Palette.sand)#, gravity: true
-Dirt = Block.register(item: "", char: "▓▓", fg: Palette.dirt)
-# Grass = Block.register(item: "", char: "▔▔", fg: Palette.grass)
-Ladder = Block.register(item: "ℍ", char: "╂╂", fg: Palette.brown, solid: false)

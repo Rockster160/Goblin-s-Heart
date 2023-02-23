@@ -32,7 +32,10 @@ class Game
     visible_board.each_with_index { |row, drawn_y| row.each_with_index { |block, drawn_x|
       next if block.visible?
 
-      block.visible = true if @board.exposed?(*drawn_to_map(drawn_x, drawn_y))
+      map_x, map_y = drawn_to_map(drawn_x, drawn_y)
+      if @board.exposed?(map_x, map_y)
+        visible_board[drawn_y][drawn_x] = @board.set([map_x, map_y], block.class.base)
+      end
     } }
 
     Draw.board(visible_board) do |pencil|

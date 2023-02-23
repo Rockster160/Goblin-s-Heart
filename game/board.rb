@@ -4,13 +4,13 @@ class Board < InfiniBoard
 
   def self.create
     new(->(x, y) {
-      return Block::AIR if y < GROUND_LEVEL # negative is up, positive is down
-      Calc.rand_ratio(0.15) ? Ore.new : Stone.new
+      return Block.base_from_type(:air) if y < GROUND_LEVEL # negative is up, positive is down
+      Calc.rand_ratio(0.15) ? Block.base_from_type(:ore_invis) : Block.base_from_type(:stone_invis)
     })
   end
 
   def clear(x, y)
-    set([x, y], Block::AIR)
+    set([x, y], Block.base_from_type(:air))
   end
 
   def air?(x, y)
