@@ -80,7 +80,7 @@ class Player
     return unless block.solid?
 
     if can_mine?(rel_x, rel_y)
-      @inventory += [block.drops].flatten.compact
+      @inventory += block.drops
       @board.clear(map_x, map_y)
     end
   end
