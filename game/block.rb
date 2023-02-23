@@ -23,21 +23,10 @@ class Block
     @opts[:invisible_block] = Colorize.color(Palette.invisible, Draw.draw(""), :bg)
   end
 
-  def self.opts
-    @opts
-  end
-
-  def self.drops(drop_proc)
-    @opts[:drops] = drop_proc
-  end
-
-  def self.[](opt)
-    @opts[opt]
-  end
-
-  def copts
-    self.class.opts
-  end
+  def self.opts = @opts
+  def self.drops(drop_proc) = @opts[:drops] = drop_proc
+  def self.[](opt) = @opts[opt]
+  def copts = self.class.opts
 
   def initialize
     @item = copts[:item] || ""
@@ -56,14 +45,8 @@ class Block
   def invisible? = !@visible
   def is?(klass) = is_a?(klass)
   def drops = [].tap { |stack| copts[:drops]&.call(stack, self) }
-
-  def name
-    self.class.name.downcase.to_sym
-  end
-
-  def to_s
-    @visible ? copts[:visible_block] : copts[:invisible_block]
-  end
+  def name = self.class.name.downcase.to_sym
+  def to_s = @visible ? copts[:visible_block] : copts[:invisible_block]
 end
 
 class Air < Block
