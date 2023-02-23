@@ -10,6 +10,10 @@ module Calc
     rand < float
   end
 
+  def rand_percent(percent) # 0-100
+    rand(100) < percent
+  end
+
   def rand_one_in(n)
     rand(n) == 0
   end

@@ -79,18 +79,7 @@ class Player
     return unless block.solid?
 
     if can_mine?(rel_x, rel_y)
-      # TODO: Extract into a drop method in Block that controls what the block drops
-      if block.is?(Ore)
-        @inventory << block
-        # drop stone sometimes when mining ore
-        @inventory << Stone.new if Calc.rand_ratio(0.1)
-      end
-
-      # TODO extract this into better drop rate logic
-      if block.is?(Stone) && Calc.rand_one_in(5)
-        @inventory << block
-      end
-
+      @inventory += [block.drops].flatten.compact
       @board.set([map_x, map_y], Block::AIR)
     end
   end

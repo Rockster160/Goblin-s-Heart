@@ -2,7 +2,6 @@ require_relative "coord"
 require_relative "palette"
 
 class Block
-  # include Coord
   attr_accessor :item, :char, :fg, :bg, :weight, :solid, :visible
   @opts = {}
   # @@blocks = [] # All blocks
@@ -26,6 +25,10 @@ class Block
 
   def self.opts
     @opts
+  end
+
+  def self.drops(drop_proc)
+    @opts[:drops] = drop_proc
   end
 
   def self.[](opt)
@@ -52,6 +55,7 @@ class Block
   def visible? = @visible
   def invisible? = !@visible
   def is?(klass) = is_a?(klass)
+  def drops = [].tap { |stack| copts[:drops]&.call(stack, self) }
 
   def name
     self.class.name.downcase.to_sym
@@ -69,9 +73,16 @@ Block::AIR = Air.new # Used so we only have one reference to air. Save some memo
 
 class Stone < Block
   block_data item: "⬢", char: "  ", bg: Palette.stone
+  drops ->(stack, block) {
+    stack << block if Calc.rand_percent(10)
+  }
 end
 class Ore < Block
   block_data item: "⠶", char: "⠰⠆", fg: Palette.ore, bg: Palette.stone
+  drops ->(stack, block) {
+    stack << block
+    stack << Stone.new if Calc.rand_percent(10) # Drop stone sometimes when mining ore
+  }
 end
 class Sand < Block
   block_data item: "", char: "▒▒", fg: Palette.sand#, gravity: true
