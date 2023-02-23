@@ -72,6 +72,7 @@ module Colorize
       teal:    rgb(0, 128, 128),
       navy:    rgb(0, 0, 128),
       rocco:   rgb(1, 96, 255),
+      octo:    "#9463e6",
       orange:  rgb(255, 150, 0),
       pink:    rgb(255, 150, 150),
     }
