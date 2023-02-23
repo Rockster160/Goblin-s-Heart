@@ -53,6 +53,7 @@ class Game
     puts("#{Ladder[:item]} #{inven_counts[:ladder] || 0}")
     puts "Drawn: #{$mousecoord} - Map: #{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
     puts "Player: #{@player.coord}"
+    puts "Player: #{@player.jumping}"
     $messages.each do |k, msg|
       puts msg
     end

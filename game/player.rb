@@ -14,6 +14,7 @@ class Player
     @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
     @inventory = []
     @reach = 3
+    @jumping = 0
     @mode = Modes::WALK
   end
 
@@ -25,8 +26,14 @@ class Player
   end
 
   def tick
-    did_move = !@jumping && fall # Apply gravity if in the air and not trying to jump
-    @jumping = false # Reset jumping state so gravity can apply again
+    if @jumping > 0
+      did_move = lift
+      @jumping -= 1
+    else
+      did_move = fall
+      @jumping = 0
+    end
+
     did_move # Return whether or not gravity applied
   end
 
@@ -62,7 +69,16 @@ class Player
 
   def jump
     # @jumping prevents gravity from applying the next tick
-    @jumping = true if grounded? && try_move(0, -1)
+    @jumping = 2 if grounded?
+  end
+
+  def lift
+    if @board.at(@x, @y-1).air?
+      try_move(0, -1)
+    else
+      @jumping = 0
+      return false
+    end
   end
 
   def fall
@@ -71,7 +87,6 @@ class Player
     try_move(0, +1)
   end
 
-  # FIXME somehow this offset the clicky mining
   def try_mine(rel_x, rel_y)
     map_x, map_y = rel_x + @x, rel_y + @y
     block = @board.at(map_x, map_y)
@@ -86,7 +101,7 @@ class Player
   end
 
   def grounded?
-    !@jumping && (!@board.at(@x, @y+1).air? || @board.at(@x, @y).is?(Ladder))
+    @jumping == 0 && (!@board.at(@x, @y+1).air? || @board.at(@x, @y).is?(Ladder))
   end
 
   def can_reach?(rel_x, rel_y)
