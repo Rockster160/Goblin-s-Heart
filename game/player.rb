@@ -76,6 +76,7 @@ class Player
     map_x, map_y = rel_x + @x, rel_y + @y
     block = @board.at(map_x, map_y)
 
+    try_move(rel_x, rel_y) if @mode == Modes::MINE && !block.solid?
     return unless block.solid?
 
     if can_mine?(rel_x, rel_y)
