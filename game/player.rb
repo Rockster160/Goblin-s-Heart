@@ -1,5 +1,3 @@
-require_relative "thing"
-
 # Not the right place for this- maybe should be it's own class, or just an enum on Player?
 module Modes
   WALK  = 1
@@ -7,12 +5,13 @@ module Modes
   # PLACE = 3
 end
 
-class Player < Thing
-  attr_accessor :board, :inventory, :reach, :mode, :jumping
+class Player
+  include Coord
+  attr_accessor :icon, :board, :inventory, :reach, :mode, :jumping
 
-  def initialize(x, y, icon)
-    super(x, y, icon)
-
+  def initialize
+    self.coord = [0, Board::GROUND_LEVEL-1]
+    @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
     @inventory = []
     @reach = 3
     @mode = Modes::WALK

@@ -13,8 +13,7 @@ class Game
 
   def initialize
     @board = Board.create
-    # @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
-    @player = Player.new(0, Board::GROUND_LEVEL-1, " 🯅")
+    @player = Player.new
     @player.board = @board
   end
 
