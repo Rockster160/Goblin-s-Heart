@@ -214,6 +214,6 @@ module Draw
 end
 
 def puts(*args)
-  print *args
+  print(*args)
   print "#{Draw.clr}#{Draw.newline}"
 end
