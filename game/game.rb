@@ -27,17 +27,15 @@ class Game
     miny = @player.y - VIS_RANGE
     maxy = @player.y + VIS_RANGE
 
-    # TODO: First set @board.area(minx..maxx, miny..maxy) to a local var, then iterate over to check
-    #   visibility, then pass to Draw.board so we don't have to load every block twice
-    # Update which blocks are visible- once visible, blocks stay visible
-    (minx..maxx).each { |map_x| (miny..maxy).each { |map_y|
-      block = @board.at(map_x, map_y)
+    visible_board = @board.area(minx..maxx, miny..maxy)
+    # Update which blocks are visible- once visible, blocks stay visible forever
+    visible_board.each_with_index { |row, drawn_y| row.each_with_index { |block, drawn_x|
       next if block.visible?
 
-      block.visible = true if @board.exposed?(map_x, map_y)
+      block.visible = true if @board.exposed?(*drawn_to_map(drawn_x, drawn_y))
     } }
 
-    Draw.board(@board.area(minx..maxx, miny..maxy)) do |pencil|
+    Draw.board(visible_board) do |pencil|
       pencil.bg = Palette.air
       pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], Palette.player, bg: Palette.player_bg)
 
