@@ -59,7 +59,7 @@ class Engine
 
   def self.pause(ctx=binding)
     # Engine.pause(binding)
-    l = Proc.new { |var| ctx.eval(var.to_s) }
+    # l = Proc.new { |var| ctx.eval(var.to_s) }
     # l[:cell] => calls local var `cell` from previous binding
     prepause
     $done || ($done ||= true) && binding.pry
