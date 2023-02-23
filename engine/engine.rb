@@ -6,14 +6,14 @@ require "pry-rails"
 class Engine
   extend Draw
   include Draw
-  attr_accessor :tick_time, :last_key
+  attr_accessor :tick_time, :last_key, :t
   # [
   #   ENV["LINES"].to_i.nonzero? || 25,
   #   ENV["COLUMNS"].to_i.nonzero? || 80,
   # ]
 
   def initialize(opts={})
-    @tick = 0
+    @t = 0
     @last_key = nil
     @tick_callback = opts[:tick]
     @input_callback = opts[:input]
@@ -98,7 +98,7 @@ class Engine
   def tick
     return unless $running
     # call once every FPS
-    @tick += 1
+    @t += 1
     Input.keys_down.uniq.each do |key|
       @input_callback&.call(key) if key
     end

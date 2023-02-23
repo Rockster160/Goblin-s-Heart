@@ -13,8 +13,8 @@ class Game
 
   def initialize
     @board = Board.create
-    # @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
-    @player = Player.new(0, Board::GROUND_LEVEL-1, " 🯅")
+    @player = Player.new(0, Board::GROUND_LEVEL-1, "＠")
+    # @player = Player.new(0, Board::GROUND_LEVEL-1, " 🯅")
     @player.board = @board
   end
 
@@ -28,9 +28,6 @@ class Game
     miny = @player.y - VIS_RANGE
     maxy = @player.y + VIS_RANGE
 
-
-
-
     color_brown   = rgb(244, 164, 96)
     color_unshown = "#090a14"
     color_stone   = "#202e37"
@@ -42,25 +39,23 @@ class Game
     color_player  = "#10141f"
 
     visible_blocks = []
-    (minx..maxx).map { |x| (miny..maxy).map { |y|
-      cell_char = @board.at(x, y)
+    (minx..maxx).map { |map_x| (miny..maxy).map { |map_y|
+      cell_char = @board.at(map_x, map_y)
+      # @octo - Not sure what this means...
       # TODO refactor this so board at checks the map
-      # not the rendered board, in case we don't wanne render the right tile yet
+      # not the rendered board, in case we don't wanna render the right tile yet
       next unless Block::SOLIDS.any? { |solid| solid[:char] == cell_char }
 
-      coord = [x, y]
-      
-      if @board.exposed?(*coord)
+      if @board.exposed?(map_x, map_y)
         fg, bg = color_stone, color_stone
-        # fg, bg = color_ore, color_stone if cell_char == Block::ORE
+        fg, bg = color_ore, color_stone if cell_char == Block::ORE[:char]
 
-        board_coord = [VIS_RANGE + coord[0] - @player.x, VIS_RANGE + coord[1] - @player.y]
-        visible_blocks << [cell_char, board_coord, fg, bg]
+        drawn_coord = map_to_drawn(map_x, map_y)
+        visible_blocks << [cell_char, drawn_coord, fg, bg]
       end
     } }.flatten.compact
 
     Draw.board(@board.area(minx..maxx, miny..maxy)) do |pencil|
-
       pencil.bg = color_air
       pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], color_player, bg: color_player_bg)
       pencil.recolor(Block::LADDER[:char], color_brown)
@@ -76,35 +71,30 @@ class Game
         pencil.paint(cell_char, board_coord, fg, bg: bg)
       end
 
-
-      mode_char = "⬌" if @player.mode == Modes::WALK
-      mode_char = "⸕" if @player.mode == Modes::MINE
-
-      coords = [1, 1]
-      fg, bg = "#090a14", color_air
-      pencil.paint(mode_char, coords, fg, bg: bg)
+      mode_ui_coord = [1, 1]
+      pencil.write(@player.mode_icon, mode_ui_coord, "#090a14")
     end
 
-
     # TODO extract this into a better UI
-    oreCount = @player.inventory.count {|item| item[:name] == "ore"}
-    stoneCount = @player.inventory.count {|item| item[:name] == "stone"}
-    ladderCount = @player.inventory.count {|item| item[:name] == "ladder"}
-
-    puts(Block::ORE[:item], " ",oreCount)
-    puts(Block::STONE[:item], " ", stoneCount)
-    puts(Block::LADDER[:item], " ", ladderCount)
+    inven_counts = @player.inventory.map { |i| i[:name] }.tally
+    puts("#{Block::ORE[:item]} #{inven_counts[:ore] || 0}")
+    puts("#{Block::STONE[:item]} #{inven_counts[:stone] || 0}")
+    puts("#{Block::LADDER[:item]} #{inven_counts[:ladder] || 0}")
+    puts "Drawn: #{$mousecoord} - Map: #{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
+    puts "Player: #{@player.coord}"
+    $messages.each do |k, msg|
+      puts msg
+    end
   end
-
 
   def input(key)
     # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause
     case key
-    when :a, :left  then @player.move(-1,  0)
-    when :d, :right then @player.move(+1,  0)
+    when :a, :left  then @player.try_action(-1,  0)
+    when :d, :right then @player.try_action(+1,  0)
     when :space     then @player.jump
-    when :w, :up    then @player.move(0, -1)
-    when :s, :down  then @player.move( 0, +1)
+    when :w, :up    then @player.try_action( 0, -1)
+    when :s, :down  then @player.try_action( 0, +1)
     when :e         then @player.mode = Modes::MINE
     when :q         then @player.mode = Modes::WALK
     else
@@ -118,14 +108,28 @@ class Game
     case key
     when /mousedown\(/
       _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
-      x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
+      x, y = drawn_to_rel(drawx, drawy)
 
       @player.try_mine(x, y)
-      
     when /mousedownShift\(/
       _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
-      x, y = [drawx-VIS_RANGE+@player.x, drawy-VIS_RANGE+@player.y]
-      @board.set([x, y], Block::LADDER) if @player.can_reach?(x, y)
+      x, y = drawn_to_rel(drawx, drawy)
+
+      @player.place_ladder(x, y)
     end
+  end
+
+  # This should be somewhere else
+  def drawn_to_map(drawn_x, drawn_y)
+    [drawn_x - VIS_RANGE + @player.x, drawn_y - VIS_RANGE + @player.y]
+  end
+  def drawn_to_rel(drawn_x, drawn_y)
+    [drawn_x - VIS_RANGE, drawn_y - VIS_RANGE]
+  end
+  def map_to_drawn(map_x, map_y)
+    [map_x + VIS_RANGE - @player.x, map_y + VIS_RANGE - @player.y]
+  end
+  def map_to_rel(map_x, map_y)
+    [map_x - @player.x, map_y - @player.y]
   end
 end

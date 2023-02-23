@@ -1,13 +1,14 @@
 require_relative "./colorize"
 
 class Pencil
-  attr_accessor :fg, :bg, :sprites, :objects
+  attr_accessor :fg, :bg, :sprites, :objects, :written
 
   def initialize
     @fg = :grey
     @bg = :black
     @sprites ||= {}
     @objects ||= {}
+    @written ||= {}
   end
 
   def foreground(color)
@@ -41,7 +42,12 @@ class Pencil
     @objects[coord.to_s] = str
   end
 
-  # TODO create pencil.write for adding text overlay, someday
+  # Write chars at coord
+  def write(str, coord, color=nil, bg: nil)
+    str = Colorize.color(bg, str, :bg) if bg
+    str = Colorize.color(color, str, :fg)
+    @written[coord.to_s] = str
+  end
 end
 
 $special_chars = {} # init global var
@@ -63,18 +69,18 @@ module Draw
   }
 
   def register_special_chars(width, *chars)
-    chars.each do |char|
+    chars.flatten.each do |char|
       $special_chars[char] = width
     end
   end
   def cell_width=(new_width); $cell_width = new_width; end
-  def cell_width; $cell_width || 2; end
-  def origin=(new_o); $board_origin = new_o.then { |x, y| [x, y] }; end
-  def origin; $board_origin || [0, 0]; end
+  def cell_width; $cell_width ||= 2; end
+  def origin=(new_o); $board_origin = *new_o; end
+  def origin; $board_origin ||= [0, 0]; end
 
   def offset_cell(x, y)
     ox, oy = Draw.origin
-    [(x / Draw.cell_width)-ox, y-oy]
+    [(x / Draw.cell_width.to_f).floor-ox, y-oy]
   end
 
   def clear_code
@@ -93,6 +99,7 @@ module Draw
   end
 
   def moveto(x, y)
+    # +1 because term expects [1,1] origin
     print("\033[#{y+1};#{(x*cell_width)+1}f") || true
   end
 
@@ -129,10 +136,14 @@ module Draw
 
   def format(text, length)
     width = length || cell_width
-    char_width = 2 if text.to_s.match?(/\p{Emoji_Presentation}/iu)
-    char_width ||= ($special_chars[text] || 1)
+    unformatted = unformat(text.to_s)
+    return text.to_s.ljust(width, " ") if unformatted.length == 0
 
-    text.to_s.ljust(width -(char_width - 1), " ")
+    char_width = 2 if text.to_s.match?(/\p{Emoji_Presentation}/iu)
+    $special_chars[text]&.then { |force_width| char_width = force_width }
+    ex_spaces = width - (char_width || unformatted.length)
+
+    text.to_s.gsub(unformatted, unformatted+(" "*ex_spaces))
   end
 
   def draw(text, opts={})
@@ -161,8 +172,8 @@ module Draw
     puts
   end
 
-  def board(board_arr, opts={}, &block)
-    draw_board(board_arr, opts, &block)
+  def board(...)
+    draw_board(...)
   end
   def draw_board(board_arr, opts={}, &block)
     return $should_redraw = true if $drawing # Prevent calling draw multiple times causing overflow
@@ -170,7 +181,7 @@ module Draw
     $drawing = true
     Draw.origin = opts[:origin] if opts[:origin]
     ox, oy = Draw.origin
-    # Move cursor to end of board so that the board block can print
+    # Move cursor to end of board so that the board/pencil block can print
     print Colorize.reset_code
     moveto(0, board_arr.length+oy)
     pencil = Pencil.new
@@ -181,7 +192,11 @@ module Draw
     board_arr.each_with_index { |row, y|
       drawat([ox, oy+y], "#{fg}#{bg}")
       row.each_with_index { |cell, x|
-        if pencil.objects[[x, y].to_s]
+        if pencil.written[[x, y].to_s]
+          text = pencil.written[[x, y].to_s]
+          print draw(cell.to_s)
+          drawat([x, y], "#{fg}#{bg}#{text}")
+        elsif pencil.objects[[x, y].to_s]
           print pencil.objects[[x, y].to_s]
           print "#{fg}#{bg}"
         elsif pencil.sprites[cell.to_s]
@@ -196,57 +211,6 @@ module Draw
     print Colorize.reset_code
     draw_board(board_arr, opts, &block) if $should_redraw
     $drawing = false
-  end
-
-  def draw_table(board_arr, opts={}, &block)
-    padding = opts[:padding] || 1
-    widths = []
-    board_arr.each.with_index { |row, y|
-      row.each.with_index { |cell, x|
-        widths[x] = [widths[x] || 0, length(cell) + padding*2].max
-      }
-    }
-
-    Draw.origin = opts[:origin] if opts[:origin]
-    # ox, oy = Draw.origin
-    pencil = Pencil.new
-    block&.call(pencil)
-    bg = Colorize.color(pencil.bg, nil, :bg)
-    fg = Colorize.color(pencil.fg, nil, :fg)
-
-    # Table
-    # moveto(ox, oy)
-    print Colorize.bold
-    print Colorize.white(BOX_CHARS[:tl])
-    widths.each_with_index { |width, widx|
-      print BOX_CHARS[:hz]*width
-      print widx == widths.length-1 ? BOX_CHARS[:tr] : BOX_CHARS[:tm]
-    }
-    # / Table
-    board_arr.each_with_index { |row, y|
-      puts # drawat([ox, oy+y], "#{fg}#{bg}")
-      print Colorize.white(BOX_CHARS[:vt]) + "#{fg}#{bg}" # -- Table
-      row.each_with_index { |cell, x|
-        text = cell.to_s
-        pencil.sprites[text]&.tap { |o| text = o }
-        pencil.objects[[x, y]]&.tap { |o| text = o }
-        print align(text, widths[x], dir: :center)
-        print "#{fg}#{bg}"
-
-        print Colorize.white(x == row.length-1 ? BOX_CHARS[:vt] : BOX_CHARS[:vt]) # -- Table
-        print "#{fg}#{bg}"
-      }
-    }
-
-    # Table
-    puts
-    print Colorize.white(BOX_CHARS[:bl])
-    widths.each_with_index { |width, widx|
-      print BOX_CHARS[:hz]*width
-      print widx == widths.length-1 ? BOX_CHARS[:br] : BOX_CHARS[:bm]
-    }
-    puts
-    # / Table
   end
 end
 

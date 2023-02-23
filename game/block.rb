@@ -1,3 +1,4 @@
+# TODO: Make this OOP instead of... Whatever this ::Constant disaster is.
 class Block
   STONE = {
     item: "⬢",

@@ -2,6 +2,8 @@ require_relative "game/game"
 
 # █⢎⡱⢾⡷⣏⣹⢕⢕⣿⣿⁅⁆⁙⁚⁜※∆∇░▒▓▞▗▘
 # ＃＠～＊☰⬢
+$messages = {}
+
 Draw.register_special_chars(2, "＃＠～＊☰⬢".chars)
 
 game = Game.new
