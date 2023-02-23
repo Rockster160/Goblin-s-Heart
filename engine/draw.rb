@@ -195,16 +195,15 @@ module Draw
         if pencil.written[[x, y].to_s]
           text = pencil.written[[x, y].to_s]
           print draw(cell.to_s)
-          drawat([x, y], "#{fg}#{bg}#{text}")
+          drawat([x, y], text)
         elsif pencil.objects[[x, y].to_s]
           print pencil.objects[[x, y].to_s]
-          print "#{fg}#{bg}"
         elsif pencil.sprites[cell.to_s]
           print pencil.sprites[cell.to_s]
-          print "#{fg}#{bg}"
         else
           print draw(cell.to_s)
         end
+        print "#{fg}#{bg}"
       }
     }
     moveto(0, board_arr.length+oy)

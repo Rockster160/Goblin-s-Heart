@@ -28,48 +28,29 @@ class Game
     miny = @player.y - VIS_RANGE
     maxy = @player.y + VIS_RANGE
 
-    visible_blocks = []
-    (minx..maxx).map { |map_x| (miny..maxy).map { |map_y|
-      cell_char = @board.at(map_x, map_y)
-      # @octo - Not sure what this means...
-      # TODO refactor this so board at checks the map
-      # not the rendered board, in case we don't wanna render the right tile yet
-      next unless Block::SOLIDS.any? { |solid| solid[:char] == cell_char }
+    # TODO: First set @board.area(minx..maxx, miny..maxy) to a local var, then iterate over to check
+    #   visibility, then pass to Draw.board so we don't have to load every block twice
+    # Update which blocks are visible- once visible, blocks stay visible
+    (minx..maxx).each { |map_x| (miny..maxy).each { |map_y|
+      block = @board.at(map_x, map_y)
+      next if block.visible?
 
-      if @board.exposed?(map_x, map_y)
-        fg, bg = Palette.stone, Palette.stone
-        fg, bg = Palette.ore, Palette.stone if cell_char == Block::ORE[:char]
-
-        drawn_coord = map_to_drawn(map_x, map_y)
-        visible_blocks << [cell_char, drawn_coord, fg, bg]
-      end
-    } }.flatten.compact
+      block.visible = true if @board.exposed?(map_x, map_y)
+    } }
 
     Draw.board(@board.area(minx..maxx, miny..maxy)) do |pencil|
       pencil.bg = Palette.air
       pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], Palette.player, bg: Palette.player_bg)
-      pencil.recolor(Block::LADDER[:char], Palette.brown)
-      pencil.recolor(Block::ORE[:char], Palette.unshown, bg: Palette.unshown)
-      pencil.recolor(Block::STONE[:char], Palette.unshown, bg: Palette.unshown)
-
-      # puts(visible_blocks)
-      visible_blocks.each do |cell_char, board_coord, fg, bg|
-        fg, bg = Palette.ore, Palette.stone if cell_char == Block::ORE[:char]
-        fg, bg = Palette.stone, Palette.stone if cell_char == Block::STONE[:char]
-
-        # TODO paint the blocks you can reach a diff color
-        pencil.paint(cell_char, board_coord, fg, bg: bg)
-      end
 
       mode_ui_coord = [1, 1]
       pencil.write(@player.mode_icon, mode_ui_coord, "#090a14")
     end
 
     # TODO extract this into a better UI
-    inven_counts = @player.inventory.map { |i| i[:name] }.tally
-    puts("#{Block::ORE[:item]} #{inven_counts[:ore] || 0}")
-    puts("#{Block::STONE[:item]} #{inven_counts[:stone] || 0}")
-    puts("#{Block::LADDER[:item]} #{inven_counts[:ladder] || 0}")
+    inven_counts = @player.inventory.map(&:name).tally
+    puts("#{Ore[:item]} #{inven_counts[:ore] || 0}")
+    puts("#{Stone[:item]} #{inven_counts[:stone] || 0}")
+    puts("#{Ladder[:item]} #{inven_counts[:ladder] || 0}")
     puts "Drawn: #{$mousecoord} - Map: #{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
     puts "Player: #{@player.coord}"
     $messages.each do |k, msg|

@@ -4,17 +4,17 @@ class Board < InfiniBoard
 
   def self.create
     new(->(x, y) {
-      return Block::AIR[:char] if y < GROUND_LEVEL # negative is up, positive is down
-      Calc.rand_ratio(0.15) ? Block::ORE[:char] : Block::STONE[:char]
+      return Block::AIR if y < GROUND_LEVEL # negative is up, positive is down
+      Calc.rand_ratio(0.15) ? Ore.new : Stone.new
     })
   end
 
   def air?(x, y)
-    at(x, y) == Block::AIR[:char]
+    at(x, y).is?(Air)
   end
 
   def solid?(x, y)
-    Block::SOLIDS.any? { |solid| solid[:char] == at(x, y) }
+    at(x, y).solid?
   end
 
   def exposed?(x, y)

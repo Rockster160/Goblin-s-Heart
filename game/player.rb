@@ -37,7 +37,7 @@ class Player < Thing
     return unless @board.air?(map_x, map_y) # Cannot place on top of an existing block
     return if @board.air?(map_x, map_y+1) # Must have a non-air block below
 
-    @board.set([map_x, map_y], Block::LADDER[:char])
+    @board.set([map_x, map_y], Ladder.new)
   end
 
   def try_action(rel_x, rel_y)
@@ -67,7 +67,7 @@ class Player < Thing
   end
 
   def fall
-    return false unless @board.at(@x, @y+1) == Block::AIR[:char]
+    return false unless @board.at(@x, @y+1).air?
 
     try_move(0, +1)
   end
@@ -77,30 +77,27 @@ class Player < Thing
     map_x, map_y = rel_x + @x, rel_y + @y
     block = @board.at(map_x, map_y)
 
-    # moving into empty space
-    if block == Block::AIR[:char]
-      # FIXME I don't think this jumping is working properly
-      # map_y == -1 ? jump : try_walk(map_x, map_y)
-    elsif can_mine?(rel_x, rel_y)
-      #  mining ore
-      if block == Block::ORE[:char]
-        @inventory << { name: :ore, weight: 1 }
+    return unless block.solid?
+
+    if can_mine?(rel_x, rel_y)
+      # TODO: Extract into a drop method in Block that controls what the block drops
+      if block.is?(Ore)
+        @inventory << block
         # drop stone sometimes when mining ore
-        @inventory << { name: :stone, weight: 1 } if Calc.rand_ratio(0.1)
+        @inventory << Stone.new if Calc.rand_ratio(0.1)
       end
 
-      # mining stone
       # TODO extract this into better drop rate logic
-      if block == Block::STONE[:char] && Calc.rand_one_in(5)
-        @inventory << { name: :stone, weight: 1 }
+      if block.is?(Stone) && Calc.rand_one_in(5)
+        @inventory << block
       end
 
-      @board.set([map_x, map_y], Block::AIR[:char])
+      @board.set([map_x, map_y], Block::AIR)
     end
   end
 
   def grounded?
-    !@jumping && @board.at(@x, @y+1) != Block::AIR[:char] || @board.at(@x, @y) == Block::LADDER[:ladder]
+    !@jumping && (!@board.at(@x, @y+1).air? || @board.at(@x, @y).is?(Ladder))
   end
 
   def can_reach?(rel_x, rel_y)

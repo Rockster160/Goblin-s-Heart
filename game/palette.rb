@@ -1,6 +1,6 @@
 module Palette
   module_function
-  def unshown   = "#090a14"
+  def invisible = "#090a14"
   def brown     = "#884b2b"
   def stone     = "#202e37"
   def dirt      = "#884b2b"
