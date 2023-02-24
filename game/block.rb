@@ -36,15 +36,11 @@ class Block
       str = Colorize.color(opts[:fg], str, :fg) if opts[:fg]
       str
     }
-    if @opts[:render_invis]
-      @opts[:invisible_block] = (opts[:char] || "").then{ |str|
-        str = Draw.draw(str)
-        str = opts[:bg_invis] ? Colorize.color(opts[:bg_invis], str, :bg) : Colorize.color(Palette.invisible, str, :bg) 
-        str = opts[:fg_invis] ? Colorize.color(opts[:fg_invis], str, :fg) : Colorize.color(Palette.invisible, str, :fg) 
-      }
-    else
-      @opts[:invisible_block] = Colorize.color(Palette.invisible, Draw.draw(""), :bg)
-    end
+    @opts[:invisible_block] = (opts[:invis_char] || opts[:char] || "").then { |str|
+      str = Draw.draw(str)
+      str = Colorize.color(opts[:bg_invis] || Palette.invisible, str, :bg)
+      str = Colorize.color(opts[:fg_invis] || Palette.invisible, str, :fg)
+    }
   end
 
   def self.opts = @opts
@@ -100,7 +96,6 @@ Block.register(
   char: "⠰⠆",
   fg: Palette.ore,
   bg: Palette.stone,
-  render_invis: true,
   fg_invis: Palette.ore_glow,
   drops: ->(stack) {
     stack << Ore.new
