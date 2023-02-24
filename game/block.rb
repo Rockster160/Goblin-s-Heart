@@ -73,8 +73,8 @@ class Block
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
-Block.register(:sand, item: "", char: "▒▒", fg: Palette.sand)#, gravity: true
-Block.register(:dirt, item: "", char: "▓▓", fg: Palette.dirt)
+Block.register(:sand, item: "", char: "⁙", fg: Palette.sand)#, gravity: true
+Block.register(:dirt, item: "", char: "⁙", fg: Palette.stone, bg: Palette.dirt)
 # Block.register(:grass, item: "", char: "▔▔", fg: Palette.grass)
 Block.register(:ladder, item: "ℍ", char: "╂╂", fg: Palette.brown, solid: false)
 Block.register(
