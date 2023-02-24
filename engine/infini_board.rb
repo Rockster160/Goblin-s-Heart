@@ -12,7 +12,7 @@ class InfiniBoard
   end
 
   def at(x, y)
-    @grid[y][x] || set([x, y], @default_val&.call(x, y))
+    @grid[y][x] || set([x, y], @default_val&.call(x, y, self))
   end
 
   def width
