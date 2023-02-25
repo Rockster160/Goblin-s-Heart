@@ -85,9 +85,29 @@ class Block
   def to_s = @visible ? copts[:visible_block] : copts[:invisible_block]
 end
 
+def drop_seed
+ 
+  Calc.rand_get_choice(
+    hemp: Seed_hemp[:drop_chance],
+    berries: Seed_berries[:drop_chance],
+    flower: Seed_flower[:drop_chance]
+  )
+
+
+end
+
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
 Block.register(:sand, item: "", char: "⸫⸪", fg: Palette.sand_dark, bg: Palette.sand)#, gravity: true
-Block.register(:dirt, item: "", char: "⁙⁛", fg: Palette.stone, bg: Palette.dirt)
+Block.register(
+  :dirt, 
+  item: "", 
+  char: "⁙⁛", 
+  fg: Palette.stone, 
+  bg: Palette.dirt,
+  drops: -> (stack) {
+    stack << Stone.new if Calc.rand_percent(25) # Drop seeds sometimes when mining dirt
+  }
+)
 # Block.register(:grass, item: "", char: "▔▔", fg: Palette.grass)
 Block.register(:ladder, item: "ℍ", char: "╂╂", fg: Palette.brown, solid: false)
 Block.register(
@@ -99,6 +119,55 @@ Block.register(
     stack << Stone.new if Calc.rand_percent(10)
   }
 )
+Block.register(
+  :seed_hemp, 
+  item: "ϫ", 
+  drop_chance: 3, 
+  growth_levels: [
+    ".",
+    "ϫ",
+    "Ϫ",
+    "𝚼"
+    ])
+Block.register(
+  :seed_berries, 
+  item: "ѵ", 
+  drop_chance: 2, 
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "ѵ", fg: ""},
+    {char: "Ѵ", fg: ""},
+    {char: "Ѷ", fg: ""}
+])
+Block.register(
+  :seed_flower, 
+  item: "١", 
+  drop_chance: 1, 
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "١", fg: ""},
+    {char: "⚘", fg: ""}
+])
+  Block.register(
+  :seed_herb, 
+  item: "℩", 
+  drop_chance: 1, 
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "℩", fg: ""},
+    {char: "ጉ", fg: ""},
+    {char: "ᒓ", fg: ""}
+    ])
+Block.register(
+  :seed_wheat, 
+  item: "…", 
+  drop_chance: 4, 
+  growth_levels: [
+    {char: "…", fg: ""},
+    {char: "꠲", fg: ""},
+    {char: "ꔖ", fg: ""},
+    {char: "ⅲ", fg: ""}
+])
 Block.register(
   :ore,
   item: "⠶",

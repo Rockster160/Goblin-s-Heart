@@ -287,3 +287,18 @@ tree
 ˦
 ⫞
 ˨
+
+
+torches
+⚲𐌒ϙ⫯𝈉†
+
+water
+  spring block
+    surrounded by stone
+    creates rivers?
+  clay at bottom of water bed
+  furnace
+    bricks
+    pots
+      storage
+    

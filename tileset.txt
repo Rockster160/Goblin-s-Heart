@@ -21,7 +21,7 @@ mode_walking    : ⬌
 plant_hemp   : .ϫϪ𝚼
 plant_berries: .ѵѴѶ
 plant_flower : .١⚘
-plant_to_name: .℩ጉᒓ
+plant_herb   : .℩ጉᒓ
 plant_wheat  : …꠲ꔖⅲ
 
 
