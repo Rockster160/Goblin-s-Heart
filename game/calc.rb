@@ -17,4 +17,13 @@ module Calc
   def rand_one_in(n)
     rand(n) == 0
   end
+
+  def rand_by_weight(keyvals)
+    sum = keyvals.values.sum
+    selected_idx = rand(0..sum)
+    keyvals.each do |key, weight|
+      return key if selected_idx <= weight
+      selected_idx -= weight
+    end
+  end
 end
