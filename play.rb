@@ -1,8 +1,13 @@
+# ruby play.rb 1234
+# Start using a seed with the above ^^
+
 require_relative "game/game"
 
 # █⢎⡱⢾⡷⣏⣹⢕⢕⣿⣿⁅⁆⁙⁚⁜※∆∇░▒▓▞▗▘
 # ＃＠～＊☰⬢
 $messages = {}
+$seed = ARGV[0]&.to_i || rand(10000)
+srand($seed)
 
 Draw.register_special_chars(2, "＃＠～＊☰⬢".chars)
 

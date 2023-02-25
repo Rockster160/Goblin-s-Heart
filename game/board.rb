@@ -7,9 +7,9 @@ class Board < InfiniBoard
       return Block.base_from_type(:air) if y < GROUND_LEVEL # negative is up, positive is down
 
       dirt = (95 - ((GROUND_LEVEL + y) * 15)).clamp(5, 95) # 95% at surface, 15% less each layer down - minimum of 5%
-      
+
       # neighbor logic
-      sand_neighbor = false 
+      sand_neighbor = false
       if board.grid.dig(y, x - 1)&.is?(Sand) || board.grid.dig(y, x + 1)&.is?(Sand)
         sand_neighbor = true
       elsif board.grid.dig(y - 1, x)&.is?(Sand) || board.grid.dig(y + 1, x)&.is?(Sand)

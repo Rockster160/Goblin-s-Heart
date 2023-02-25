@@ -21,13 +21,15 @@ class Block
       end
     )
     @@block_types[klass_name] = klass.new(visible: true)
-    @@block_types["#{klass_name}_invis".to_sym] = klass.new unless class_opts[:visible]
+    return if class_opts[:visible]
+
+    @@block_types["#{klass_name}_invis".to_sym] = klass.new
   end
 
   def self.base_from_type(klass_sym) = @@block_types[klass_sym]
   def self.base = @@block_types[self.name.downcase.to_sym]
-  def self.base_invis = @@block_types["#{self.name.downcase}_invis".to_sym]
-  def self.base_glint = @@block_types["#{self.name.downcase}_glint".to_sym]
+  def self.invis = @@block_types["#{self.name.downcase}_invis".to_sym]
+  def self.glint_char = @opts[:glint_block]
 
   def self.block_data(opts)
     @opts = opts
@@ -42,11 +44,23 @@ class Block
       str = Colorize.color(opts[:bg_invis] || Palette.invisible, str, :bg)
       str = Colorize.color(opts[:fg_invis] || Palette.invisible, str, :fg)
     }
+    @opts[:glint_block] = (opts[:glint_char] || opts[:invis_char] || opts[:char] || "").then { |str|
+      str = Draw.draw(str)
+      str = Colorize.color(opts[:bg_glint] || opts[:bg_invis] || Palette.invisible, str, :bg)
+      str = Colorize.color(opts[:fg_glint] || opts[:fg_invis] || Palette.invisible, str, :fg)
+    }
+    @opts[:glintable] = !!(opts[:glint_char] || opts[:bg_glint] || opts[:fg_glint])
   end
 
   def self.opts = @opts
   def self.[](opt) = @opts[opt]
   def copts = self.class.opts
+
+  def bool_opt?(opts, key, default=false)
+    return opts[key] if opts.key?(key)
+
+    copts.key?(key) ? copts[key] : default
+  end
 
   def initialize(opts={})
     @item = opts[:item] || copts[:item] || ""
@@ -54,16 +68,9 @@ class Block
     @fg = opts[:fg] || copts[:fg] || nil
     @bg = opts[:bg] || copts[:bg] || nil
     @weight = opts[:weight] || copts[:weight] || 1
-    if opts.key?(:solid)
-      @solid = opts[:solid]
-    else
-      @solid = copts.key?(:solid) ? copts[:solid] : true
-    end
-    if opts.key?(:visible)
-      @visible = opts[:visible]
-    else
-      @visible = copts.key?(:visible) ? copts[:visible] : false
-    end
+    @solid = bool_opt?(opts, :solid, true)
+    @visible = bool_opt?(opts, :visible)
+    @glint = bool_opt?(opts, :glint)
     # self.class.add(self)
   end
 
@@ -71,6 +78,7 @@ class Block
   def solid? = @solid
   def visible? = @visible
   def invisible? = !@visible
+  def glintable? = copts[:glintable]
   def is?(klass) = is_a?(klass)
   def drops = [].tap { |stack| copts[:drops]&.call(stack) }.flatten.compact
   def name = self.class.name.downcase.to_sym
@@ -97,7 +105,7 @@ Block.register(
   char: "⠰⠆",
   fg: Palette.ore,
   bg: Palette.stone,
-  fg_invis: Palette.ore_glow,
+  fg_glint: Palette.ore_glow,
   drops: ->(stack) {
     stack << Ore.new
     stack << Stone.new if Calc.rand_percent(10) # Drop stone sometimes when mining ore

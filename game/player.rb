@@ -14,6 +14,7 @@ class Player
     @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
     @inventory = []
     @reach = 3
+    @glint_range = 5
     @jumping = 0
     @mode = Modes::WALK
   end
@@ -105,7 +106,11 @@ class Player
   end
 
   def can_reach?(rel_x, rel_y)
-    Calc.distance(@x, @y, @x + rel_x, @y + rel_y) <= reach
+    Calc.distance(@x, @y, @x + rel_x, @y + rel_y) <= @reach
+  end
+
+  def within_glint_range?(rel_x, rel_y)
+    Calc.distance(@x, @y, @x + rel_x, @y + rel_y) <= @glint_range
   end
 
   def can_mine?(rel_x, rel_y)

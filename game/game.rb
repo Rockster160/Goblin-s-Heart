@@ -27,32 +27,27 @@ class Game
     miny = @player.y - VIS_RANGE
     maxy = @player.y + VIS_RANGE
 
+    glinting = []
     visible_board = @board.area(minx..maxx, miny..maxy)
     # Update which blocks are visible- once visible, blocks stay visible forever
     visible_board.each_with_index { |row, drawn_y| row.each_with_index { |block, drawn_x|
-      next if block.visible?
+      next if block.visible? # Do nothing - block has already been seen
 
       map_x, map_y = drawn_to_map(drawn_x, drawn_y)
       if @board.exposed?(map_x, map_y)
         visible_board[drawn_y][drawn_x] = @board.set([map_x, map_y], block.class.base)
-      end
-    } }
-
-    # ore glint
-    glint_board = @board.area(minx..maxx, miny..maxy)
-    # only glint if within a range of the player
-    glint_board.each_within_index { |row, drawn_y| row.each_with_index { |block, drawn_x| 
-      next if block.visible?
-
-      map_x, map_y = drawn_to_map(drawn_x, drawn_y)
-      if @player.within_glint_range?(map_x, map_y)
-        glint_board[drawn_y][drawn_x] = @board.set([map_x, map_y], block.class.glint)
+      elsif block.glintable? && @player.within_glint_range?(*map_to_rel(map_x, map_y))
+        glinting.push([block.class.glint_char, [drawn_x, drawn_y]])
       end
     } }
 
     Draw.board(visible_board) do |pencil|
       pencil.bg = Palette.air
       pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], Palette.player, bg: Palette.player_bg)
+
+      glinting.each do |glint_char, glint_coord|
+        pencil.paint(glint_char, glint_coord)
+      end
 
       mode_ui_coord = [1, 1]
       pencil.write(@player.mode_icon, mode_ui_coord, "#090a14")
@@ -63,12 +58,9 @@ class Game
     puts("#{Ore[:item]} #{inven_counts[:ore] || 0}")
     puts("#{Stone[:item]} #{inven_counts[:stone] || 0}")
     puts("#{Ladder[:item]} #{inven_counts[:ladder] || 0}")
-    puts "Drawn: #{$mousecoord} - Map: #{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
-    puts "Player: #{@player.coord}"
-    puts "Player: #{@player.jumping}"
-    $messages.each do |k, msg|
-      puts msg
-    end
+    print "Seed(#{$seed.to_s.rjust(4, "0")}) Player#{@player.coord} "
+    puts "Drawn#{$mousecoord} Map#{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
+    $messages.each { |k, msg| puts msg }
   end
 
   def input(key)
