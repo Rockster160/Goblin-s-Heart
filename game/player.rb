@@ -11,7 +11,8 @@ class Player
 
   def initialize
     self.coord = [0, Board::GROUND_LEVEL-1]
-    @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
+    # @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
+    @icon = Dir.pwd.include?("rocco") ? "𐂀" : " 🯅"
     @inventory = []
     @reach = 3
     @glint_range = 5

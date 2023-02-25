@@ -15,7 +15,7 @@ class Block
 
   def self.register(klass_name, class_opts)
     klass = Object.const_set(
-      klass_name.to_s.capitalize,
+      klass_name.to_s.split("_").map(&:capitalize).join(""),
       Class.new(self) do
         block_data(**class_opts)
       end
@@ -82,6 +82,7 @@ class Block
   def is?(klass) = is_a?(klass)
   def drops = [].tap { |stack| copts[:drops]&.call(stack) }.flatten.compact
   def name = self.class.name.downcase.to_sym
+  def render_name = copts[:render_name] || name.capitalize
   def to_s = @visible ? copts[:visible_block] : copts[:invisible_block]
 end
 
@@ -96,14 +97,25 @@ def drop_seed
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
-Block.register(:sand, item: "", char: "⸫⸪", fg: Palette.sand_dark, bg: Palette.sand)#, gravity: true
+Block.register(
+  :sand,
+  item: "▢",
+  char: "⸫⸪",
+  fg: Palette.sand_dark,
+  bg: Palette.sand,
+  drops: -> (stack) {
+    stack << Sand.new # Drop seeds sometimes when mining dirt
+  }
+)#, gravity: true
 Block.register(
   :dirt, 
-  item: "", 
+  render_name: "Dort",
+  item: "🞔", 
   char: "⁙⁛", 
   fg: Palette.stone, 
   bg: Palette.dirt,
   drops: -> (stack) {
+    stack << Dirt.new
     stack << drop_seed.new # Drop seeds sometimes when mining dirt
   }
 )
@@ -111,15 +123,15 @@ Block.register(
 Block.register(:ladder, item: "ℍ", char: "╂╂", fg: Palette.brown, solid: false)
 Block.register(
   :stone,
-  item: "⬢",
+  item: "▣",
   char: "  ",
   bg: Palette.stone,
   drops: ->(stack) {
-    stack << Stone.new if Calc.rand_percent(10)
+    stack << Stone.new if Calc.rand_percent(90)
   }
 )
 Block.register(
-  :seed_hemp, item: "ϫ", drop_chance: 3, 
+  :seed_hemp, item: "ϫ", drop_chance: 3, render_name: "Hemp Seed",
   growth_levels: [
     {char: ".", fg: ""},
     {char: "ϫ", fg: ""},
@@ -127,7 +139,7 @@ Block.register(
     {char: "𝚼", fg: ""}
     ])
 Block.register(
-  :seed_berries, item: "ѵ", drop_chance: 2, 
+  :seed_berries, item: "ѵ", drop_chance: 2, render_name: "Berry Bush Seed",
   growth_levels: [
     {char: ".", fg: ""},
     {char: "ѵ", fg: ""},
@@ -135,14 +147,14 @@ Block.register(
     {char: "Ѷ", fg: ""}
 ])
 Block.register(
-  :seed_flower, item: "١", drop_chance: 1, 
+  :seed_flower, item: "ᛙ", drop_chance: 1, render_name: "Flower Seed",
   growth_levels: [
     {char: ".", fg: ""},
-    {char: "١", fg: ""},
+    {char: "ᛙ", fg: ""},
     {char: "⚘", fg: ""}
 ])
   Block.register(
-  :seed_herb, item: "℩", drop_chance: 1, 
+  :seed_herb, item: "℩", drop_chance: 1, render_name: "Herb Seed",
   growth_levels: [
     {char: ".", fg: ""},
     {char: "℩", fg: ""},
@@ -150,7 +162,7 @@ Block.register(
     {char: "ᒓ", fg: ""}
     ])
 Block.register(
-  :seed_wheat, item: "…", drop_chance: 4, 
+  :seed_wheat, item: "…", drop_chance: 4, render_name: "Wheat Seed",
   growth_levels: [
     {char: "…", fg: ""},
     {char: "꠲", fg: ""},
@@ -159,6 +171,7 @@ Block.register(
 ])
 Block.register(
   :ore,
+  render_name: "Iron Ore",
   item: "⠶",
   char: "⠰⠆",
   fg: Palette.ore,

@@ -54,10 +54,14 @@ class Game
     end
 
     # TODO extract this into a better UI
-    inven_counts = $player.inventory.map(&:name).tally
-    puts("#{Ore[:item]} #{inven_counts[:ore] || 0}")
-    puts("#{Stone[:item]} #{inven_counts[:stone] || 0}")
-    puts("#{Ladder[:item]} #{inven_counts[:ladder] || 0}")
+    inven_counts = $player.inventory.group_by { |block| block.item}
+
+    inven_counts.each do |item, blocks|
+      block = blocks.first
+      puts("#{item}: #{blocks.count} \t #{block.render_name}")
+    end
+
+
     print "Seed(#{$seed.to_s.rjust(4, "0")}) Player#{$player.coord} "
     puts "Drawn#{$mousecoord} Map#{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
     $messages.each { |k, msg| puts msg }
