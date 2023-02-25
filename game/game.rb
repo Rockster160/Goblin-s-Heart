@@ -43,14 +43,14 @@ class Game
 
     Draw.board(visible_board) do |pencil|
       pencil.bg = Palette.air
-      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], Palette.player, bg: Palette.player_bg)
+      pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], fg: Palette.player, bg: Palette.player_bg)
 
       glinting.each do |glint_char, glint_coord|
         pencil.paint(glint_char, glint_coord)
       end
 
       mode_ui_coord = [1, 1]
-      pencil.write(@player.mode_icon, mode_ui_coord, "#090a14")
+      pencil.write(@player.mode_icon, mode_ui_coord, fg: "#090a14")
     end
 
     # TODO extract this into a better UI

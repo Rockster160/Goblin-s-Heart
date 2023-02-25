@@ -20,32 +20,32 @@ class Pencil
   end
 
   # Change all instances of old_str into new_str and color it
-  def replace(old_str, new_str, color, bg: nil)
+  def replace(old_str, new_str, fg: nil, bg: nil)
     str = Draw.draw(new_str)
     str = Colorize.color(bg, str, :bg) if bg
-    str = Colorize.color(color, str, :fg)
+    str = Colorize.color(fg, str, :fg) if fg
     @sprites[old_str.to_s] = str
   end
 
-  def recolor(raw_str, color, bg: nil)
+  def recolor(raw_str, fg: nil, bg: nil)
     str = Draw.draw(raw_str)
     str = Colorize.color(bg, str, :bg) if bg
-    str = Colorize.color(color, str, :fg)
+    str = Colorize.color(fg, str, :fg) if fg
     @sprites[raw_str.to_s] = str
   end
 
   # Place char at coords
-  def paint(str, coord, color=nil, bg: nil)
+  def paint(str, coord, fg: nil, bg: nil)
     str = Draw.draw(str)
     str = Colorize.color(bg, str, :bg) if bg
-    str = Colorize.color(color, str, :fg)
+    str = Colorize.color(fg, str, :fg) if fg
     @objects[coord.to_s] = str
   end
 
   # Write chars at coord
-  def write(str, coord, color=nil, bg: nil)
+  def write(str, coord, fg: nil, bg: nil)
     str = Colorize.color(bg, str, :bg) if bg
-    str = Colorize.color(color, str, :fg)
+    str = Colorize.color(fg, str, :fg) if fg
     @written[coord.to_s] = str
   end
 end
@@ -84,7 +84,11 @@ module Draw
   end
 
   def clear_code
-    "\033[K"
+    "\e[K"
+  end
+
+  def clear_rest_screen
+    print "\e[0J"
   end
 
   def clear_rest_line
@@ -100,7 +104,7 @@ module Draw
 
   def moveto(x, y)
     # +1 because term expects [1,1] origin
-    print("\033[#{y+1};#{(x*cell_width)+1}f") || true
+    print("\e[#{y+1};#{(x*cell_width)+1}f") || true
   end
 
   def newline
@@ -208,6 +212,7 @@ module Draw
     }
     moveto(0, board_arr.length+oy)
     print Colorize.reset_code
+    clear_rest_screen
     draw_board(board_arr, opts, &block) if $should_redraw
     $drawing = false
   end
