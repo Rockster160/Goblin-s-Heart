@@ -86,14 +86,13 @@ class Block
 end
 
 def drop_seed
- 
-  Calc.rand_get_choice(
-    hemp: Seed_hemp[:drop_chance],
-    berries: Seed_berries[:drop_chance],
-    flower: Seed_flower[:drop_chance]
+  Calc.rand_by_weight(
+    SeedHemp => SeedHemp[:drop_chance],
+    SeedBerries => SeedBerries[:drop_chance],
+    SeedFlower => SeedFlower[:drop_chance],
+    SeedHerb => SeedHerb[:drop_chance],
+    SeedWheat => SeedWheat[:drop_chance]
   )
-
-
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
@@ -105,7 +104,7 @@ Block.register(
   fg: Palette.stone, 
   bg: Palette.dirt,
   drops: -> (stack) {
-    stack << Stone.new if Calc.rand_percent(25) # Drop seeds sometimes when mining dirt
+    stack << drop_seed.new # Drop seeds sometimes when mining dirt
   }
 )
 # Block.register(:grass, item: "", char: "▔▔", fg: Palette.grass)
@@ -120,19 +119,15 @@ Block.register(
   }
 )
 Block.register(
-  :seed_hemp, 
-  item: "ϫ", 
-  drop_chance: 3, 
+  :seed_hemp, item: "ϫ", drop_chance: 3, 
   growth_levels: [
-    ".",
-    "ϫ",
-    "Ϫ",
-    "𝚼"
+    {char: ".", fg: ""},
+    {char: "ϫ", fg: ""},
+    {char: "Ϫ", fg: ""},
+    {char: "𝚼", fg: ""}
     ])
 Block.register(
-  :seed_berries, 
-  item: "ѵ", 
-  drop_chance: 2, 
+  :seed_berries, item: "ѵ", drop_chance: 2, 
   growth_levels: [
     {char: ".", fg: ""},
     {char: "ѵ", fg: ""},
@@ -140,18 +135,14 @@ Block.register(
     {char: "Ѷ", fg: ""}
 ])
 Block.register(
-  :seed_flower, 
-  item: "١", 
-  drop_chance: 1, 
+  :seed_flower, item: "١", drop_chance: 1, 
   growth_levels: [
     {char: ".", fg: ""},
     {char: "١", fg: ""},
     {char: "⚘", fg: ""}
 ])
   Block.register(
-  :seed_herb, 
-  item: "℩", 
-  drop_chance: 1, 
+  :seed_herb, item: "℩", drop_chance: 1, 
   growth_levels: [
     {char: ".", fg: ""},
     {char: "℩", fg: ""},
@@ -159,9 +150,7 @@ Block.register(
     {char: "ᒓ", fg: ""}
     ])
 Block.register(
-  :seed_wheat, 
-  item: "…", 
-  drop_chance: 4, 
+  :seed_wheat, item: "…", drop_chance: 4, 
   growth_levels: [
     {char: "…", fg: ""},
     {char: "꠲", fg: ""},
