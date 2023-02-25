@@ -38,6 +38,18 @@ class Game
       end
     } }
 
+    # ore glint
+    glint_board = @board.area(minx..maxx, miny..maxy)
+    # only glint if within a range of the player
+    glint_board.each_within_index { |row, drawn_y| row.each_with_index { |block, drawn_x| 
+      next if block.visible?
+
+      map_x, map_y = drawn_to_map(drawn_x, drawn_y)
+      if @player.within_glint_range?(map_x, map_y)
+        glint_board[drawn_y][drawn_x] = @board.set([map_x, map_y], block.class.glint)
+      end
+    } }
+
     Draw.board(visible_board) do |pencil|
       pencil.bg = Palette.air
       pencil.paint(@player.icon, [VIS_RANGE, VIS_RANGE], Palette.player, bg: Palette.player_bg)

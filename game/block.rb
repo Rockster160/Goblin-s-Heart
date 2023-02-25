@@ -27,6 +27,7 @@ class Block
   def self.base_from_type(klass_sym) = @@block_types[klass_sym]
   def self.base = @@block_types[self.name.downcase.to_sym]
   def self.base_invis = @@block_types["#{self.name.downcase}_invis".to_sym]
+  def self.base_glint = @@block_types["#{self.name.downcase}_glint".to_sym]
 
   def self.block_data(opts)
     @opts = opts
