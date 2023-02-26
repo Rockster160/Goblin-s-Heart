@@ -1,4 +1,4 @@
-sand            : ⸫⸪ 
+sand            : ⸫⸪
 dirt            : ⁙⁛
 stone           : ██
 water           : ～
@@ -6,10 +6,10 @@ copper          : ⠰⠆
 iron            : ⢎⡱
 gold            : ⢕⢕
 player          : ＠ 🯅
-crafter         : ☰ 
+crafter         : ☰
 door            : ⁅⁆
 crystal_ceiling : ∇
-crystal_floor   : ∆ 
+crystal_floor   : ∆
 dropped_resource: ⬢
 teleport_pad    : ⁜ ※
 air             : ·
@@ -17,14 +17,13 @@ grass           : 🮑
 ladder          : ╂╂
 mode_mining     : ⸕
 mode_walking    : ⬌
-
-plant_hemp   : .ϫϪ𝚼
-plant_berries: .ѵѴѶ
-plant_flower : .١⚘
-plant_herb   : .℩ጉᒓ
-plant_wheat  : …꠲ꔖⅲ
-
-plant_tree   :
+torch           : ⫯
+plant_hemp      : .ϫϪ𝚼
+plant_berries   : .ѵѴѶ
+plant_flower    : .١⚘
+plant_herb      : .℩ጉᒓ
+plant_wheat     : …꠲ꔖⅲ
+plant_tree      : 
 
 1:
 φ
