@@ -74,7 +74,7 @@ class Block
     # self.class.add(self)
   end
 
-  def air? = is?(Air)
+  def air? = is?(Air) || is?(Cave_Air)
   def solid? = @solid
   def visible? = @visible
   def invisible? = !@visible
@@ -97,6 +97,7 @@ def drop_seed
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
+Block.register(:cave_air, item: "", char: "  ", fg: Palette.cave_air, solid: false, visible: true)
 Block.register(
   :sand,
   item: "▢",

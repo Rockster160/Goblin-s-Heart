@@ -2,7 +2,8 @@
 module Modes
   WALK  = 1
   MINE  = 2
-  # PLACE = 3
+  PLACE = 3
+  MENU  = 4
 end
 
 class Player

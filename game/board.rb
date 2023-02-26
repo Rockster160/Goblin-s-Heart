@@ -33,7 +33,8 @@ class Board < InfiniBoard
   end
 
   def clear(x, y)
-    set([x, y], Block.base_from_type(:air))
+    chosen_air = y > 2 ? Block.base_from_type(:air) : Block.base_from_type(:cave_air)
+    set([x, y], chosen_air)
   end
 
   def air?(x, y)
