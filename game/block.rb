@@ -165,5 +165,5 @@ Block.register(
 )
 class CaveAir < Air
   block_data item: "", char: "  ", fg: Palette.cave_air, bg: Palette.cave_air, solid: false, visible: true
+  register_class
 end
-CaveAir.register_class
