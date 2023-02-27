@@ -74,7 +74,7 @@ class Block
     # self.class.add(self)
   end
 
-  def air? = is?(Air) || is?(Cave_Air)
+  def air? = is?(Air) || is?(CaveAir)
   def solid? = @solid
   def visible? = @visible
   def invisible? = !@visible
