@@ -50,7 +50,6 @@ class Game
       end
 
       mode_ui_coord = [1, 1]
-      # TODO remove harcoded color 
       pencil.write($player.mode_icon, mode_ui_coord, fg: Palette.player)
     end
 
@@ -69,6 +68,7 @@ class Game
   end
 
   def input(key)
+    # TODO this is gnarly, needs to be converted to input controller
     # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause
     case key
     when :a, :left  then $player.try_action(-1,  0) if $player.mode != Modes::MENU

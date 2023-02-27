@@ -67,14 +67,14 @@ module Palette
   module_function
   def invisible = Apollo.neutral[0]
   def brown     = Apollo.orange[2]
-  def stone     = Apollo.neutral[4]
+  def stone     = Apollo.neutral[5]
   def dirt      = Apollo.orange[2]
   def sand      = Apollo.orange[5]
   def sand_dark = Apollo.red[5]
   def ore       = Apollo.neutral[8]
   def ore_glow  = Apollo.neutral[2]
   def air       = Apollo.blue[5]
-  def cave_air  = Apollo.neutral[8]
+  def cave_air  = Apollo.neutral[3]
   def player_bg = Apollo.green[4]
   def player    = Apollo.neutral[1]
 end

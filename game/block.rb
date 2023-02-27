@@ -97,7 +97,7 @@ def drop_seed
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
-Block.register(:cave_air, item: "", char: "  ", fg: Palette.cave_air, solid: false, visible: true)
+Block.register(:cave_air, item: "", char: "  ", fg: Palette.cave_air, bg: Palette.cave_air, solid: false, visible: true)
 Block.register(
   :sand,
   item: "▢",

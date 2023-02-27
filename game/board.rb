@@ -33,12 +33,22 @@ class Board < InfiniBoard
   end
 
   def clear(x, y)
-    chosen_air = y > 2 ? Block.base_from_type(:air) : Block.base_from_type(:cave_air)
+    has_skylight = is_cave?(x, y)
+    chosen_air = y > 2 && !has_skylight ? Block.base_from_type(:cave_air) : Block.base_from_type(:air) 
     set([x, y], chosen_air)
   end
 
   def air?(x, y)
     at(x, y).is?(Air)
+  end
+
+  def is_cave?(x, y)
+    iter = 0
+    begin
+      solid?(x, y - iter) 
+      iter += 1
+      # TODO extract this depth 10 into cave detection vars
+    end while iter < 10
   end
 
   def solid?(x, y)
