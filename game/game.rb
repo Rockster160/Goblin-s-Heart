@@ -15,10 +15,30 @@ class Game
     $board = Board.create
     $player = Player.new
     $player.board = $board
+
+    # draw_bowls
+  end
+
+  def draw_bowls
+    render_offset = [0, -11]
+    File.read("../bowls.txt").split("\n").each_with_index do |row, y|
+      row.chars.each_with_index do |char, x|
+        cell = case char
+        when "B" then Stone.base
+        when " " then Air.base
+        when "~" then Water.base
+        when "." then next
+        end
+        $board.set([render_offset[0]+x, render_offset[1]+y], cell)
+      end
+    end
   end
 
   def tick
-    draw if $player.tick # returns a bool if there was a change so we know to redraw screen
+    draw if [
+      $player.tick,
+      $board.tick
+    ].any?
   end
 
   def draw
@@ -54,10 +74,10 @@ class Game
     end
 
     # TODO extract this into a better UI
-    inven_counts = $player.inventory.map(&:name).tally
-    puts("#{Ore[:item]} #{inven_counts[:ore] || 0}")
-    puts("#{Stone[:item]} #{inven_counts[:stone] || 0}")
-    puts("#{Ladder[:item]} #{inven_counts[:ladder] || 0}")
+    inven_counts = $player.inventory.group_by(&:item)
+    inven_counts.each do |item, blocks|
+      puts "#{item}: #{blocks.count}"
+    end
     print "Seed(#{$seed.to_s.rjust(4, "0")}) Player#{$player.coord} "
     puts "Drawn#{$mousecoord} Map#{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
     $messages.each { |k, msg| puts msg }
@@ -73,6 +93,7 @@ class Game
     when :s, :down  then $player.try_action( 0, +1)
     when :e         then $player.mode = Modes::MINE
     when :q         then $player.mode = Modes::WALK
+    when :p         then Engine.prepause; binding.pry; Engine.postpause
     else
       # return puts(key) # uncomment for debugging to see which events are being triggered
     end
@@ -83,15 +104,20 @@ class Game
   def instant_input(key) # Triggers as soon as it happens
     case key
     when /mousedown\(/
-      _, drawx, drawy = key.to_s.match(/mousedown\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
+      _, drawx, drawy = key.to_s.match(/mouse\w+\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       rel_x, rel_y = drawn_to_rel(drawx, drawy)
 
       $player.try_mine(rel_x, rel_y)
     when /mousedownShift\(/
-      _, drawx, drawy = key.to_s.match(/mousedownShift\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
+      _, drawx, drawy = key.to_s.match(/mouse\w+\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
       rel_x, rel_y = drawn_to_rel(drawx, drawy)
 
       $player.place_ladder(rel_x, rel_y)
+    when /mousedownCmd\(/, /mousedragCmd\(/
+      _, drawx, drawy = key.to_s.match(/mouse\w+\((-?\d+),(-?\d+)\)/).to_a.map(&:to_i)
+      map_x, map_y = drawn_to_map(drawx, drawy)
+
+      $board.set([map_x, map_y], Water.base)
     end
   end
 

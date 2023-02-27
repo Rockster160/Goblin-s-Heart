@@ -50,7 +50,6 @@ class Pencil
   end
 end
 
-$special_chars = {} # init global var
 module Draw
   module_function
 
@@ -69,6 +68,7 @@ module Draw
   }
 
   def register_special_chars(width, *chars)
+    $special_chars ||= {}
     chars.flatten.each do |char|
       $special_chars[char] = width
     end
@@ -144,7 +144,11 @@ module Draw
     return text.to_s.ljust(width, " ") if unformatted.length == 0
 
     char_width = 2 if text.to_s.match?(/\p{Emoji_Presentation}/iu)
-    $special_chars[text]&.then { |force_width| char_width = force_width }
+    # $special_chars&.dig(text)&.then { |force_width| char_width = force_width }
+    if "＃＠～＊☰⬢".include?(unformatted)
+      # TODO: For some reason the global variable above is being lost. Hack for now.
+      char_width = 2
+    end
     ex_spaces = width - (char_width || unformatted.length)
 
     text.to_s.gsub(unformatted, unformatted+(" "*ex_spaces))

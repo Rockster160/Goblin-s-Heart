@@ -37,22 +37,26 @@ class InfiniBoard
     val
   end
 
-  def area(xrange, yrange)
+  def area_map(xrange, yrange, &block)
     yrange.map do |y|
       xrange.map do |x|
-        at(x, y)
+        block.call(x, y)
       end
     end
   end
 
-  def to_a
-    @width = width
-    @height = height
-
-    @height.times.map do |y|
-      @width.times.map do |x|
-        at(x+@minx, y+@miny)
+  def area_each(xrange, yrange, &block)
+    xrange.each do |x|
+      yrange.each do |y|
+        block.call(x, y)
       end
-    end
+    end; nil
   end
+
+  def area(xrange, yrange) = area_map(xrange, yrange) { |x, y| at(x, y) }
+  def to_a = area((@minx..@maxx), (@miny..@maxy))
+  def reverse_each(&block) = area_each((@minx..@maxx).to_a.reverse, (@miny..@maxy).to_a.reverse) { |x, y| block.call(x, y) }
+  def each(&block) = area_each((@minx..@maxx), (@miny..@maxy)) { |x, y| block.call(x, y) }
+  def reverse_map(&block) = area_map((@minx..@maxx).to_a.reverse, (@miny..@maxy).to_a.reverse) { |x, y| block.call(x, y) }
+  def map(&block) = area_map((@minx..@maxx), (@miny..@maxy)) { |x, y| block.call(x, y) }
 end

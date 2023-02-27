@@ -12,4 +12,5 @@ module Palette
   def cave_air  = "#151d28"
   def player_bg = "#a8ca58"
   def player    = "#10141f"
+  def water     = "#0160FF"
 end

@@ -116,6 +116,7 @@ module Input
       when 64 then "mouseoverDown(#{x},#{y})"
       when 67 then "mouseoverUp(#{x},#{y})"
       when 71 then "mouseoverShift(#{x},#{y})"
+      when 72 then "mousedragCmd(#{x},#{y})"
       when 74 then "mouserightCmdDrag(#{x},#{y})" # RightDrag + CMD
       when 75 then "mouseoverCmd(#{x},#{y})"
       when 79 then "mouseoverCmdShift(#{x},#{y})"

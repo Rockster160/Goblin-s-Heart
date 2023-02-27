@@ -5,27 +5,36 @@ class Block
   attr_accessor :item, :char, :fg, :bg, :weight, :solid, :visible
   @opts = {}
   @@block_types = {}
-  # @@blocks = [] # All blocks
-  # @blocks = [] # Blocks per class
+  @@blocks = [] # All blocks
+  @blocks = [] # Blocks per class
 
-  # def self.add(block)
-  #   @blocks << block
-  #   @@blocks << block
-  # end
+  def self.add(block)
+    @blocks ||= []
+    @blocks << block
+    @@blocks ||= []
+    @@blocks << block
+  end
 
-  def self.register(klass_name, class_opts)
-    klass = Object.const_set(
-      klass_name.to_s.capitalize,
-      Class.new(self) do
-        block_data(**class_opts)
-      end
-    )
+  def self.register_klass(klass, klass_name=nil)
+    klass_name ||= klass.name.to_s.downcase.to_sym
     @@block_types[klass_name] = klass.new(visible: true)
-    return if class_opts[:visible]
+    return if @opts[:visible]
 
     @@block_types["#{klass_name}_invis".to_sym] = klass.new
   end
 
+  def self.register(klass_name, class_opts, &block)
+    klass = Object.const_set(
+      klass_name.to_s.capitalize,
+      Class.new(self) do
+        block_data(**class_opts)
+        block&.call
+      end
+    )
+    register_klass(klass, klass_name)
+  end
+
+  def self.all = @blocks
   def self.base_from_type(klass_sym) = @@block_types[klass_sym]
   def self.base = @@block_types[self.name.downcase.to_sym]
   def self.invis = @@block_types["#{self.name.downcase}_invis".to_sym]
@@ -56,13 +65,8 @@ class Block
   def self.[](opt) = @opts[opt]
   def copts = self.class.opts
 
-  def bool_opt?(opts, key, default=false)
-    return opts[key] if opts.key?(key)
-
-    copts.key?(key) ? copts[key] : default
-  end
-
   def initialize(opts={})
+    @opts = opts
     @item = opts[:item] || copts[:item] || ""
     @char = opts[:char] || copts[:char] || "."
     @fg = opts[:fg] || copts[:fg] || nil
@@ -71,18 +75,39 @@ class Block
     @solid = bool_opt?(opts, :solid, true)
     @visible = bool_opt?(opts, :visible)
     @glint = bool_opt?(opts, :glint)
-    # self.class.add(self)
+    self.class.add(self)
   end
 
+  def tick(x, y); end # Empty method - should be overridden by classes
   def air? = is?(Air)
   def solid? = @solid
   def visible? = @visible
   def invisible? = !@visible
   def glintable? = copts[:glintable]
   def is?(klass) = is_a?(klass)
-  def drops = [].tap { |stack| copts[:drops]&.call(stack) }.flatten.compact
   def name = self.class.name.downcase.to_sym
-  def to_s = @visible ? copts[:visible_block] : copts[:invisible_block]
+  def to_s
+    return @visible ? copts[:visible_block] : copts[:invisible_block] if copts[:char] == @opts[:char]
+
+    @char.then { |str|
+      str = Draw.draw(str)
+      str = Colorize.color(@bg, str, :bg) if @bg
+      str = Colorize.color(@fg, str, :fg) if @fg
+      str
+    }
+  end
+  # def to_s = @visible ? copts[:visible_block] : copts[:invisible_block]
+  def drops
+    return [self.class.new] unless copts.key?(:drops)
+
+    [].tap { |stack| copts[:drops]&.call(stack) }.flatten.compact
+  end
+
+  def bool_opt?(opts, key, default=false)
+    return opts[key] if opts.key?(key)
+
+    copts.key?(key) ? copts[key] : default
+  end
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
