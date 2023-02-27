@@ -79,12 +79,13 @@ class Player
     block = $board.at(x, y)
 
     return false if block.air?
+    return true if block.ladder?
 
     block.is?(Water) && block.level >= 6
   end
 
   def lift
-    if $board.at(@x, @y-1).then { |block| block.air? || block.is?(Water) }
+    if !$board.at(@x, @y-1).solid?
       try_move(0, -1)
     else
       @jumping = 0
