@@ -75,8 +75,16 @@ class Player
     @jumping = 2 if grounded?
   end
 
+  def sturdy?(x, y)
+    block = $board.at(x, y)
+
+    return false if block.air?
+
+    block.is?(Water) && block.level >= 6
+  end
+
   def lift
-    if $board.at(@x, @y-1).air?
+    if $board.at(@x, @y-1).then { |block| block.air? || block.is?(Water) }
       try_move(0, -1)
     else
       @jumping = 0
@@ -85,7 +93,7 @@ class Player
   end
 
   def fall
-    return false unless $board.at(@x, @y+1).air?
+    return false if sturdy?(@x, @y+1)
 
     try_move(0, +1)
   end
@@ -104,7 +112,9 @@ class Player
   end
 
   def grounded?
-    @jumping == 0 && (!$board.at(@x, @y+1).air? || $board.at(@x, @y).is?(Ladder))
+    return false unless @jumping == 0
+
+    !$board.at(@x, @y+1).air? || $board.at(@x, @y).is?(Ladder)
   end
 
   def can_reach?(rel_x, rel_y)

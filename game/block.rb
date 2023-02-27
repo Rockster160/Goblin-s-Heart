@@ -16,8 +16,10 @@ class Block
   end
 
   def self.register_klass(klass_name=nil)
+    klass = self
     klass_name ||= klass_snakecase(klass_name)
     @@block_types[klass_name] = self.new(visible: true)
+    Block.define_method("#{klass_name}?") { is?(klass) }
     return if @opts[:visible]
 
     @@block_types["#{klass_name}_invis".to_sym] = self.new
@@ -88,7 +90,6 @@ class Block
   end
 
   def tick(x, y); end # Empty method - should be overridden by classes
-  def air? = (is?(Air) || is?(CaveAir))
   def solid? = @solid
   def visible? = @visible
   def invisible? = !@visible
@@ -132,7 +133,6 @@ def drop_seed
 end
 
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
-Block.register(:cave_air, item: "", char: "  ", fg: Palette.cave_air, bg: Palette.cave_air, solid: false, visible: true)
 Block.register(
   :sand,
   item: "▢",
@@ -215,3 +215,7 @@ Block.register(
     stack << Stone.new if Calc.rand_percent(10) # Drop stone sometimes when mining ore
   }
 )
+class CaveAir < Air
+  block_data item: "", char: "  ", fg: Palette.cave_air, bg: Palette.cave_air, solid: false, visible: true
+end
+CaveAir.register_klass

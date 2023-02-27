@@ -40,7 +40,7 @@ class Board < InfiniBoard
   end
 
   def air?(x, y)
-    at(x, y).then { |block| block.is?(Air) || block.is?(CaveAir) }
+    at(x, y).then { |block| block.is?(Air) }
   end
 
   def has_skylight?(x, y)

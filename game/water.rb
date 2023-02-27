@@ -1,7 +1,7 @@
 require_relative "block"
 
 class Water < Block
-  block_data char: "～", fg: Palette.water, solid: false, visible: true
+  block_data char: "██", fg: Palette.water, solid: false, visible: true
   attr_accessor :level
   MAX_LEVEL = 8
 
@@ -43,8 +43,8 @@ class Water < Block
     # Fall left/right if there is any left
     left_block = $board.at(@map_x-1, @map_y+1)
     right_block = $board.at(@map_x+1, @map_y+1)
-    left_open = left_block.air?|| left_block.is?(Water)
-    right_open = right_block.air?|| right_block.is?(Water)
+    left_open = left_block.air? || left_block.is?(Water)
+    right_open = right_block.air? || right_block.is?(Water)
 
     spreadable = [left_open, right_open].count(true)
     return if spreadable <= 0
@@ -94,7 +94,7 @@ class Water < Block
     levels.shuffle!
     set([@map_x-1, @map_y], levels.pop) if left_open
     set([@map_x+1, @map_y], levels.pop) if right_open
-    @did_move = true if left_block.air? || right_block.air?
+    @did_move = true if left_open || right_open
   end
 
   def follow
@@ -117,7 +117,6 @@ class Water < Block
     this_level = reload_level - give_level
     return if give_level == 0
 
-    spread_x, spread_y = *to_map_coord
     spread_to = $board.at(*to_map_coord)
     if spread_to.air?
       @did_move = true
@@ -125,10 +124,10 @@ class Water < Block
       total = spread_to.level + give_level
       to_total = total.clamp(0, MAX_LEVEL)
       new_total = total - to_total
+      @did_move = true if give_level != new_total
+
       this_level += new_total
       give_level = to_total
-
-      @did_move = true if new_total == 0
     else
       return # No spreading because block is not air or water
     end
@@ -138,7 +137,9 @@ class Water < Block
   end
 
   def set(map_coord, set_level)
-    $board.set(map_coord, Water.levels[set_level]) # 0 will be air
+    return $board.clear(*map_coord) if set_level == 0
+
+    $board.set(map_coord, Water.levels[set_level])
   end
 end
 Water.register_klass
