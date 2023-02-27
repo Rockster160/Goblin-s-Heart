@@ -78,3 +78,15 @@ module Palette
   def player_bg = Apollo.green[4]
   def player    = Apollo.neutral[1]
 end
+
+# TODO tentative palette
+
+# module Pallete
+#   module_function
+#   def stone = {
+#     base: Apollo.neutral,
+#     light: 5,
+#     dark: 6,
+#   }
+# end
+

@@ -32,6 +32,7 @@ class Board < InfiniBoard
     })
   end
 
+  # TODO add gradient using ░▒▓█
   def clear(x, y)
     has_skylight = is_cave?(x, y)
     chosen_air = y > 2 && !has_skylight ? Block.base_from_type(:cave_air) : Block.base_from_type(:air) 
