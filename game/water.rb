@@ -12,6 +12,7 @@ class Water < Block
     @level = opts[:level] || MAX_LEVEL
   end
   # Must come after initialize - Air.base first so that 0 == Air
+  # FIXME sticks air bg where it should be cave air
   @levels = [Air.base] + MAX_LEVEL.times.map { |t| Water.new(level: t+1, char: "▁▂▃▄▅▆▇█"[t]*2) }
 
   def tick(map_x, map_y)
@@ -42,8 +43,8 @@ class Water < Block
     # Fall left/right if there is any left
     left_block = $board.at(@map_x-1, @map_y+1)
     right_block = $board.at(@map_x+1, @map_y+1)
-    left_open = left_block.is?(Air) || left_block.is?(Water)
-    right_open = right_block.is?(Air) || right_block.is?(Water)
+    left_open = left_block.air?|| left_block.is?(Water)
+    right_open = right_block.air?|| right_block.is?(Water)
 
     spreadable = [left_open, right_open].count(true)
     return if spreadable <= 0
@@ -70,8 +71,8 @@ class Water < Block
 
     left_block = $board.at(@map_x-1, @map_y)
     right_block = $board.at(@map_x+1, @map_y)
-    left_open = left_block.is?(Air) || left_block.is?(Water)
-    right_open = right_block.is?(Air) || right_block.is?(Water)
+    left_open = left_block.air? || left_block.is?(Water)
+    right_open = right_block.air? || right_block.is?(Water)
 
     spreadable = [true, left_open, right_open].count(true)
     return if spreadable <= 1
@@ -93,7 +94,7 @@ class Water < Block
     levels.shuffle!
     set([@map_x-1, @map_y], levels.pop) if left_open
     set([@map_x+1, @map_y], levels.pop) if right_open
-    @did_move = true if left_block.is?(Air) || right_block.is?(Air)
+    @did_move = true if left_block.air? || right_block.air?
   end
 
   def follow
@@ -118,7 +119,7 @@ class Water < Block
 
     spread_x, spread_y = *to_map_coord
     spread_to = $board.at(*to_map_coord)
-    if spread_to.is?(Air)
+    if spread_to.air?
       @did_move = true
     elsif spread_to.is?(Water)
       total = spread_to.level + give_level
