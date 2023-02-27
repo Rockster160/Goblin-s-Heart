@@ -140,5 +140,5 @@ class Water < Block
     $board.set(map_coord, Water.levels[set_level]) # 0 will be air
   end
 end
-Block.register_klass(Water)
+Water.register_klass
 # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause

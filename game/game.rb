@@ -70,27 +70,29 @@ class Game
       end
 
       mode_ui_coord = [1, 1]
-      pencil.write($player.mode_icon, mode_ui_coord, fg: "#090a14")
+      pencil.write($player.mode_icon, mode_ui_coord, fg: Palette.player)
     end
 
     # TODO extract this into a better UI
     inven_counts = $player.inventory.group_by(&:item)
     inven_counts.each do |item, blocks|
-      puts "#{item}: #{blocks.count}"
+      block = blocks.first
+      puts("#{item}: #{blocks.count} \t #{block.render_name}")
     end
+
     print "Seed(#{$seed.to_s.rjust(4, "0")}) Player#{$player.coord} "
     puts "Drawn#{$mousecoord} Map#{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
     $messages.each { |k, msg| puts msg }
   end
 
   def input(key)
-    # Engine.prepause; $done || ($done ||= true) && binding.pry; Engine.postpause
+    # TODO this is gnarly, needs to be converted to input controller
     case key
-    when :a, :left  then $player.try_action(-1,  0)
-    when :d, :right then $player.try_action(+1,  0)
-    when :space     then $player.jump
-    when :w, :up    then $player.try_action( 0, -1)
-    when :s, :down  then $player.try_action( 0, +1)
+    when :a, :left  then $player.try_action(-1,  0) if $player.mode != Modes::MENU
+    when :d, :right then $player.try_action(+1,  0) if $player.mode != Modes::MENU
+    when :space     then $player.jump if $player.mode != Modes::MENU
+    when :w, :up    then $player.try_action( 0, -1) if $player.mode != Modes::MENU
+    when :s, :down  then $player.try_action( 0, +1) if $player.mode != Modes::MENU
     when :e         then $player.mode = Modes::MINE
     when :q         then $player.mode = Modes::WALK
     when :p         then Engine.prepause; binding.pry; Engine.postpause
@@ -121,7 +123,7 @@ class Game
     end
   end
 
-  # This should be somewhere else
+  # TODO: This should be somewhere else
   def drawn_to_map(drawn_x, drawn_y)
     [drawn_x - VIS_RANGE + $player.x, drawn_y - VIS_RANGE + $player.y]
   end

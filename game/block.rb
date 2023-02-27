@@ -15,30 +15,39 @@ class Block
     @@blocks << block
   end
 
-  def self.register_klass(klass, klass_name=nil)
-    klass_name ||= klass.name.to_s.downcase.to_sym
-    @@block_types[klass_name] = klass.new(visible: true)
+  def self.register_klass(klass_name=nil)
+    klass_name ||= klass_snakecase(klass_name)
+    @@block_types[klass_name] = self.new(visible: true)
     return if @opts[:visible]
 
-    @@block_types["#{klass_name}_invis".to_sym] = klass.new
+    @@block_types["#{klass_name}_invis".to_sym] = self.new
   end
 
   def self.register(klass_name, class_opts, &block)
+    klass_name = klass_snakecase(klass_name)
     klass = Object.const_set(
-      klass_name.to_s.capitalize,
+      klass_pascalcase(klass_name),
       Class.new(self) do
         block_data(**class_opts)
         block&.call
       end
     )
-    register_klass(klass, klass_name)
+    klass.register_klass(klass_name)
   end
 
   def self.all = @blocks
-  def self.base_from_type(klass_sym) = @@block_types[klass_sym]
-  def self.base = @@block_types[self.name.downcase.to_sym]
-  def self.invis = @@block_types["#{self.name.downcase}_invis".to_sym]
+  def self.base_from_type(klass_name_sym) = @@block_types[klass_name_sym]
+  def self.base = @@block_types[klass_snakecase]
+  def self.invis = @@block_types["#{klass_snakecase}_invis".to_sym]
   def self.glint_char = @opts[:glint_block]
+
+  def self.klass_pascalcase(klass_name=nil)
+    (klass_name || self.name).to_s.downcase.split("_").map(&:capitalize).join("").to_sym
+  end
+  def self.klass_snakecase(klass_name=nil)
+    snake = (klass_name || self.name).to_s.gsub(/([a-z])([A-Z])/, '\1_\2').downcase
+    snake.to_sym
+  end
 
   def self.block_data(opts)
     @opts = opts
@@ -79,15 +88,17 @@ class Block
   end
 
   def tick(x, y); end # Empty method - should be overridden by classes
-  def air? = is?(Air)
+  def air? = (is?(Air) || is?(CaveAir))
   def solid? = @solid
   def visible? = @visible
   def invisible? = !@visible
   def glintable? = copts[:glintable]
   def is?(klass) = is_a?(klass)
   def name = self.class.name.downcase.to_sym
+  def render_name = copts[:render_name] || name.capitalize
   def to_s
-    return @visible ? copts[:visible_block] : copts[:invisible_block] if copts[:char] == @opts[:char]
+    return copts[:invisible_block] if !@visible
+    return copts[:visible_block] if copts[:char] == @opts[:char]
 
     @char.then { |str|
       str = Draw.draw(str)
@@ -110,22 +121,90 @@ class Block
   end
 end
 
+def drop_seed
+  Calc.rand_by_weight(
+    SeedHemp => SeedHemp[:drop_chance],
+    SeedBerries => SeedBerries[:drop_chance],
+    SeedFlower => SeedFlower[:drop_chance],
+    SeedHerb => SeedHerb[:drop_chance],
+    SeedWheat => SeedWheat[:drop_chance]
+  )
+end
+
 Block.register(:air, item: "", char: "  ", fg: Palette.air, solid: false, visible: true)
-Block.register(:sand, item: "", char: "⸫⸪", fg: Palette.sand_dark, bg: Palette.sand)#, gravity: true
-Block.register(:dirt, item: "", char: "⁙⁛", fg: Palette.stone, bg: Palette.dirt)
+Block.register(:cave_air, item: "", char: "  ", fg: Palette.cave_air, bg: Palette.cave_air, solid: false, visible: true)
+Block.register(
+  :sand,
+  item: "▢",
+  char: "⸫⸪",
+  fg: Palette.sand_dark,
+  bg: Palette.sand,
+)#, gravity: true
+Block.register(
+  :dirt,
+  render_name: "Dort",
+  item: "🞔",
+  char: "⁙⁛",
+  fg: Palette.stone,
+  bg: Palette.dirt,
+  drops: -> (stack) {
+    stack << Dirt.new
+    stack << drop_seed.new # Drop seeds sometimes when mining dirt
+  }
+)
 # Block.register(:grass, item: "", char: "▔▔", fg: Palette.grass)
 Block.register(:ladder, item: "ℍ", char: "╂╂", fg: Palette.brown, solid: false)
 Block.register(
   :stone,
-  item: "⬢",
+  item: "▣",
   char: "  ",
   bg: Palette.stone,
   drops: ->(stack) {
-    stack << Stone.new if Calc.rand_percent(10)
+    stack << Stone.new if Calc.rand_percent(90)
   }
 )
 Block.register(
+  :seed_hemp, item: "ϫ", drop_chance: 3, render_name: "Hemp Seed",
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "ϫ", fg: ""},
+    {char: "Ϫ", fg: ""},
+    {char: "𝚼", fg: ""}
+    ])
+Block.register(
+  :seed_berries, item: "ѵ", drop_chance: 2, render_name: "Berry Bush Seed",
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "ѵ", fg: ""},
+    {char: "Ѵ", fg: ""},
+    {char: "Ѷ", fg: ""}
+])
+Block.register(
+  :seed_flower, item: "ᛙ", drop_chance: 1, render_name: "Flower Seed",
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "ᛙ", fg: ""},
+    {char: "⚘", fg: ""}
+])
+  Block.register(
+  :seed_herb, item: "℩", drop_chance: 1, render_name: "Herb Seed",
+  growth_levels: [
+    {char: ".", fg: ""},
+    {char: "℩", fg: ""},
+    {char: "ጉ", fg: ""},
+    {char: "ᒓ", fg: ""}
+    ])
+Block.register(
+  :seed_wheat, item: "…", drop_chance: 4, render_name: "Wheat Seed",
+  growth_levels: [
+    {char: "…", fg: ""},
+    {char: "꠲", fg: ""},
+    {char: "ꔖ", fg: ""},
+    {char: "ⅲ", fg: ""}
+])
+Block.register(
   :ore,
+  render_name: "Iron Ore",
   item: "⠶",
   char: "⠰⠆",
   fg: Palette.ore,

@@ -33,12 +33,23 @@ class Board < InfiniBoard
     did_move
   end
 
+  # TODO add gradient using ░▒▓█
   def clear(x, y)
-    set([x, y], Air.base)
+    air_type = y < GROUND_LEVEL+2 || has_skylight?(x, y) ? Air.base : CaveAir.base
+    set([x, y], air_type)
   end
 
   def air?(x, y)
-    at(x, y).is?(Air)
+    at(x, y).then { |block| block.is?(Air) || block.is?(CaveAir) }
+  end
+
+  def has_skylight?(x, y)
+    check_y = y.dup
+    loop do
+      return false if at(x, check_y).solid?
+      check_y -= 1
+      return true if check_y < GROUND_LEVEL
+    end
   end
 
   def solid?(x, y)

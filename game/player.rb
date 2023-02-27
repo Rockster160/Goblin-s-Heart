@@ -2,7 +2,8 @@
 module Modes
   WALK  = 1
   MINE  = 2
-  # PLACE = 3
+  PLACE = 3
+  MENU  = 4
 end
 
 class Player
@@ -11,7 +12,8 @@ class Player
 
   def initialize
     self.coord = [0, Board::GROUND_LEVEL-1]
-    @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
+    # @icon = Dir.pwd.include?("rocco") ? "＠" : " 🯅"
+    @icon = Dir.pwd.include?("rocco") ? "𐂀" : " 🯅"
     @inventory = []
     @reach = 3
     @glint_range = 5
