@@ -82,11 +82,51 @@ end
 
 # TODO tentative palette
 
-# module Pallete
-#   module_function
-#   def stone = {
-#     base: Apollo.neutral,
-#     light: 5,
-#     dark: 6,
-#   }
-# end
+module TentativePallete
+  module_function
+  def stone = {
+    base: Apollo.neutral,
+    fg: 5,
+    # dark: { # not necessary, darken by one step (-1) for every color by default 
+    #   fg: 4
+    # }
+  }
+  def dirt = {
+    base: Apollo.orange,
+    fg: stone.fg,
+    bg: 2,
+    dark: {
+      fg: stone.dark.fg,
+      # bg: 1 # not necessary, as it is a step down from default bg
+    }
+  }
+  def sand = {
+    base: Apollo.orange,
+    fg: Apollo.red[5],
+    bg: 5
+  }
+  def ore = {
+    base: Apollo.neutral,
+    fg: 8,
+    bg: stone.bg,
+    glint: { # we can store glint colors here too, and if block mechanics support it, use it
+      fg: 2
+    }
+  }
+  def air = {
+    base: Apollo.blue,
+    fg: 5,
+    dark: { # this is cave air
+      fg: Apollo.neutral[3]
+    }
+  }
+  def player = {
+    base: Apollo.neutral,
+    fg: 1,
+    bg: Apollo.green[4]
+  }
+  def water = {
+    base: Apollo.blue,
+    fg: 3
+  }
+end
