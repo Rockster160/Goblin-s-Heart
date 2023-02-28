@@ -35,7 +35,7 @@ class Board < InfiniBoard
 
   # TODO add gradient using ░▒▓█
   def clear(x, y)
-    air_type = y < GROUND_LEVEL+2 || has_skylight?(x, y) ? Air.base : CaveAir.base
+    air_type = y > (GROUND_LEVEL+10) || !has_skylight?(x, y) ? CaveAir.base : Air.base 
     set([x, y], air_type)
   end
 
@@ -46,9 +46,9 @@ class Board < InfiniBoard
   def has_skylight?(x, y)
     check_y = y.dup
     loop do
-      return false if at(x, check_y).solid?
       check_y -= 1
-      return true if check_y < GROUND_LEVEL
+      return false if at(x, check_y).solid?
+      return true if check_y < GROUND_LEVEL-4
     end
   end
 
