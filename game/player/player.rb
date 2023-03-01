@@ -50,8 +50,13 @@ class Player
     did_move # Return whether or not gravity applied
   end
 
+  # FIXME PLEASE I AM HORRENDOUS
   def next_mode
-    mode = (mode + 1) % Modes.length
+    case @mode
+    when Modes::MINE then @mode = Modes::WALK
+    when Modes::PLACE then @mode = Modes::MINE
+    when Modes::WALK then @mode = Modes::PLACE
+    end 
   end
 
   def interact
@@ -67,9 +72,10 @@ class Player
   end
 
   def try_action(rel_x, rel_y)
-    case @mode
-    when Modes::WALK then try_move(rel_x, rel_y)
-    when Modes::MINE then try_mine(rel_x, rel_y)
+    if @mode == Modes::MINE
+      try_mine(rel_x, rel_y)
+    else 
+      try_move(rel_x, rel_y)
     end
   end
 

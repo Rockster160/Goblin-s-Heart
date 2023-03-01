@@ -87,11 +87,11 @@ class Game
   def input(key)
     # TODO this is gnarly, needs to be converted to input controller
     case key
-    when :a, :left  then $player.try_action(-1,  0) if $player.mode != Modes::MENU
-    when :d, :right then $player.try_action(+1,  0) if $player.mode != Modes::MENU
-    when :space     then $player.jump if $player.mode != Modes::MENU
-    when :w, :up    then $player.try_action( 0, -1) if $player.mode != Modes::MENU
-    when :s, :down  then $player.try_action( 0, +1) if $player.mode != Modes::MENU
+    when :a, :left  then $player.try_action(-1,  0) # if $player.mode != Modes::MENU
+    when :d, :right then $player.try_action(+1,  0) # if $player.mode != Modes::MENU
+    when :space     then $player.jump # if $player.mode != Modes::MENU
+    when :w, :up    then $player.try_action( 0, -1) # if $player.mode != Modes::MENU
+    when :s, :down  then $player.try_action( 0, +1) # if $player.mode != Modes::MENU
     when :e         then $player.interact
     when :q         then $player.next_mode
     when :p         then Engine.prepause; binding.pry; Engine.postpause
