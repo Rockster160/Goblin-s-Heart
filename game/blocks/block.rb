@@ -1,6 +1,6 @@
-require_relative "coord"
-require_relative "palette"
-require_relative "text"
+require_relative "../lib/coord"
+require_relative "../lib/palette"
+require_relative "../lib/text"
 
 class Block
   attr_accessor :item, :char, :fg, :bg, :weight, :solid, :visible

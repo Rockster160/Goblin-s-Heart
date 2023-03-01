@@ -1,9 +1,8 @@
 require_relative "../engine/engine"
 require_relative "../engine/infini_board"
 
-Dir.chdir("./game")
-Dir["*.rb"].each do |file|
-  require_relative "./#{file}" if File.file?(file)
+Dir.glob(File.join("./game" + "/**/*.rb")).each do |file|
+  require file
 end
 
 class Game
@@ -93,8 +92,8 @@ class Game
     when :space     then $player.jump if $player.mode != Modes::MENU
     when :w, :up    then $player.try_action( 0, -1) if $player.mode != Modes::MENU
     when :s, :down  then $player.try_action( 0, +1) if $player.mode != Modes::MENU
-    when :e         then $player.mode = Modes::MINE
-    when :q         then $player.mode = Modes::WALK
+    when :e         then $player.interact
+    when :q         then $player.next_mode
     when :p         then Engine.prepause; binding.pry; Engine.postpause
     else
       # return puts(key) # uncomment for debugging to see which events are being triggered

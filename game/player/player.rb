@@ -6,9 +6,18 @@ module Modes
   MENU  = 4
 end
 
+
 class Player
   include Coord
   attr_accessor :icon, :board, :inventory, :reach, :mode, :jumping
+  
+  # TODO extract this into its own module @Rockster160
+  def walk? = mode == Modes::WALK
+  def place? = mode == Modes::PLACE
+  def mine? = mode == Modes::MINE
+  def menu? = mode == Modes::MENU
+
+  
 
   def initialize
     self.coord = [0, Board::GROUND_LEVEL-1]
@@ -25,6 +34,7 @@ class Player
     case @mode
     when Modes::MINE then "⸕"
     when Modes::WALK then "⬌"
+    when Modes::PLACE then "⬢"
     end
   end
 
@@ -38,6 +48,13 @@ class Player
     end
 
     did_move # Return whether or not gravity applied
+  end
+
+  def next_mode
+    mode = (mode + 1) % Modes.length
+  end
+
+  def interact
   end
 
   def place_ladder(rel_x, rel_y)
