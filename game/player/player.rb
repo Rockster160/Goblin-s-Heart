@@ -1,23 +1,9 @@
-# Not the right place for this- maybe should be it's own class, or just an enum on Player?
-module Modes
-  WALK  = 1
-  MINE  = 2
-  PLACE = 3
-  MENU  = 4
-end
-
-
 class Player
+  extend Enum
   include Coord
   attr_accessor :icon, :board, :inventory, :reach, :mode, :jumping
-  
-  # TODO extract this into its own module @Rockster160
-  def walk? = mode == Modes::WALK
-  def place? = mode == Modes::PLACE
-  def mine? = mode == Modes::MINE
-  def menu? = mode == Modes::MENU
 
-  
+  enum mode: [:walk, :place, :mine, :menu]
 
   def initialize
     self.coord = [0, Board::GROUND_LEVEL-1]
@@ -27,15 +13,7 @@ class Player
     @reach = 3
     @glint_range = 5
     @jumping = 0
-    @mode = Modes::WALK
-  end
-
-  def mode_icon
-    case @mode
-    when Modes::MINE then "⸕"
-    when Modes::WALK then "⬌"
-    when Modes::PLACE then "⬢"
-    end
+    walk!
   end
 
   def tick
@@ -48,15 +26,6 @@ class Player
     end
 
     did_move # Return whether or not gravity applied
-  end
-
-  # FIXME PLEASE I AM HORRENDOUS
-  def next_mode
-    case @mode
-    when Modes::MINE then @mode = Modes::WALK
-    when Modes::PLACE then @mode = Modes::MINE
-    when Modes::WALK then @mode = Modes::PLACE
-    end 
   end
 
   def interact
@@ -72,9 +41,9 @@ class Player
   end
 
   def try_action(rel_x, rel_y)
-    if @mode == Modes::MINE
+    if mine?
       try_mine(rel_x, rel_y)
-    else 
+    else
       try_move(rel_x, rel_y)
     end
   end
@@ -126,7 +95,7 @@ class Player
     map_x, map_y = rel_x + @x, rel_y + @y
     block = $board.at(map_x, map_y)
 
-    try_move(rel_x, rel_y) if @mode == Modes::MINE && !block.solid?
+    try_move(rel_x, rel_y) if mine? && !block.solid?
     return unless block.solid?
 
     if can_mine?(rel_x, rel_y)
