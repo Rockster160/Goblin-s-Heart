@@ -88,8 +88,8 @@ class Game
     case $player.mode
     when :mine then "⸕"
     when :walk then "⬌"
-    when :place then "⬢"
-    when :menu then "-"
+    when :place then "⬡"
+    when :menu then "𝝣"
     else "?"
     end
   end
