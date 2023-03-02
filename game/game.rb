@@ -96,16 +96,22 @@ class Game
 
   def input(key)
     # TODO this is gnarly, needs to be converted to input controller
+
+    left  = [:a, :left, :A, :shift_left]
+    right = [:d, :right, :D, :shift_right]
+    up    = [:w, :up, :W, :shift_up]
+    down  = [:s, :down, :S, :shift_down]
+
     case key
-    when :a, :left  then $player.try_action(-1,  0) # if !$player.menu?
-    when :d, :right then $player.try_action(+1,  0) # if !$player.menu?
-    when :space     then $player.jump # if !$player.menu?
-    when :w, :up    then $player.try_action( 0, -1) # if !$player.menu?
-    when :s, :down  then $player.try_action( 0, +1) # if !$player.menu?
-    when :e         then $player.interact
-    when :q         then $player.next_mode
-    when :Q         then $player.prev_mode
-    when :p         then Engine.prepause; binding.pry; Engine.postpause
+    when *left  then $player.try_action(-1,  0) # if !$player.menu?
+    when *right then $player.try_action(+1,  0) # if !$player.menu?
+    when :space then $player.jump # if !$player.menu?
+    when *up    then $player.try_action( 0, -1) # if !$player.menu?
+    when *down  then $player.try_action( 0, +1) # if !$player.menu?
+    when :e     then $player.interact
+    when :q     then $player.next_mode
+    when :Q     then $player.prev_mode
+    when :p     then Engine.prepause; binding.pry; Engine.postpause
     else
       # return puts(key) # uncomment for debugging to see which events are being triggered
     end
