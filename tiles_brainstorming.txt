@@ -423,3 +423,25 @@ water
 cactus
 Ⴕ⍦ჄψΨꕚ
 
+
+menu
+  ├ » inventory
+  │
+  ├─ mode        # walk isn't here because it's default
+  │   ├─ build
+  │   └─ break
+  │
+  ├─ options
+      ├ » save
+      ├─  load
+      ├─  video
+      └─  audio
+
+
+
+
+
+
+  ├─
+  │
+  └─

@@ -102,6 +102,37 @@ class Game
     up    = [:w, :up, :W, :shift_up]
     down  = [:s, :down, :S, :shift_down]
 
+    # this is aloud thinking, don't mind me
+    #
+    #   player should not be aware of menu mode
+    #   game should not be aware of player modes
+    #   likewise, game shouldn't know the player
+    #   will move one block at a time. that's for
+    #   the player movement to decide
+    #
+    #   press button
+    #       if player mechanic like moving
+    #           game send press to player
+    #           player ask game if can move to xy
+    #           game accepts/denies based on board 
+    #       if player mechanic like mode switch
+    #           game send press to player
+    #       if game mechanic like menu input
+    #           game eats input and deals with it
+    # 
+    #   menu is game, not player.
+    # TODO remove menu as a mode from player
+    #
+    # TODO "gameboy advance" controls
+    #   wasd / arrow  - movement
+    #   q e           - bumpers
+    #   space         - A / enter
+    #   esc           - B / back
+    #
+    # TODO menu organization
+    #   
+
+
     case key
     when *left  then $player.try_action(-1,  0) # if !$player.menu?
     when *right then $player.try_action(+1,  0) # if !$player.menu?
@@ -109,7 +140,7 @@ class Game
     when *up    then $player.try_action( 0, -1) # if !$player.menu?
     when *down  then $player.try_action( 0, +1) # if !$player.menu?
     when :e     then $player.interact
-    when :q     then $player.next_mode
+    when :q     then $player.next_mode 
     when :Q     then $player.prev_mode
     when :p     then Engine.prepause; binding.pry; Engine.postpause
     else
