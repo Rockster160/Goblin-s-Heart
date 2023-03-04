@@ -151,20 +151,42 @@ class Game
     draw
   end
 
-  # input controller
+  # input controller - rough sketch
   # TODO extract into its own file in the game folder
   def handle_input(key)
+    # TODO handle multiple keys at once
+    # TODO handle key rebinds
     case key
-    when :game_up then
-    when :game_down then
-    when :game_left then
-    when :game_right then
-    when :game_a then
-    when :game_b then
-    when :game_l_bumper then
-    when :game_r_bumper then
+    when :game_up       then action_up
+    when :game_down     then action_down
+    when :game_left     then action_left
+    when :game_right    then action_right
+    when :game_a        then action_interact
+    when :game_b        then action_cancel
+    when :game_l_bumper then action_bump_l
+    when :game_r_bumper then action_bump_r
     end
   end
+
+  def action_up
+  end
+  def action_down
+  end
+  def action_left
+  end
+  def action_right
+  end
+  def action_interact
+  end
+  def action_cancel
+  end
+  def action_bump_l
+  end
+  def action_bump_r
+  end
+
+
+  # end input controller
 
   def instant_input(key) # Triggers as soon as it happens
     case key
