@@ -79,6 +79,11 @@ class Game
       puts("#{item}: #{blocks.count} \t #{block.render_name}")
     end
 
+    # TODO extract this into menu rendering
+    if $player.menu?
+      Draw.box([3,2], 1, 4, fg: Palette.stone, bg: Palette.water)
+    end
+
     print "Seed(#{$seed.to_s.rjust(4, "0")}) Player#{$player.coord} "
     puts "Drawn#{$mousecoord} Map#{drawn_to_map(*$mousecoord)}" if $mousecoord&.length == 2
     $messages.each { |k, msg| puts msg }

@@ -48,6 +48,8 @@ class Pencil
     str = Colorize.color(fg, str, :fg) if fg
     @written[coord.to_s] = str
   end
+
+  
 end
 
 module Draw
@@ -100,6 +102,27 @@ module Draw
   def cls
     system "clear" or system "cls"
     nil
+  end
+  def box(start_coord, height, width, fg: nil, bg: nil, str: nil)
+    # TODO parse string and figure out width and height from there
+    # width = (minx - maxx).abs + 2
+    # height = (miny - maxy).abs
+    height = height + 2
+    top = "▁"
+    bot = "▔"
+    left = "▏"
+    right = "▕"
+    solid = "█"
+
+    height.times do |h|
+      content = left + (solid * width) + right
+      content = top * width if h == 1
+      content = bot * width if h == height
+      content = Colorize.color(bg, content, :bg) if bg
+      content = Colorize.color(fg, content, :fg) if fg
+
+      write(content, start_coord + (h - 1))
+    end
   end
 
   def moveto(x, y)
