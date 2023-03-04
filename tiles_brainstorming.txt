@@ -427,13 +427,13 @@ cactus
 menu
   ├ » inventory
   │
-  ├─ mode        # walk isn't here because it's default
-  │   ├─ build
-  │   └─ break
+  ├─  build mode # walk isn't here because it's default
+  ├─  break mode
   │
-  ├─ options
-      ├ » save
-      ├─  load
+  ├─  save
+  ├─  load
+  │
+  └─  options
       ├─  video
       └─  audio
 
@@ -442,6 +442,6 @@ menu
 
 
 
-  ├─
   │
-  └─
+  ├ »
+  └─ 

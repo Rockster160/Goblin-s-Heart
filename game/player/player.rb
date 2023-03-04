@@ -95,7 +95,7 @@ class Player
     map_x, map_y = rel_x + @x, rel_y + @y
     block = $board.at(map_x, map_y)
 
-    try_move(rel_x, rel_y) if mine? && !block.solid?
+    try_move(rel_x, rel_y) if mine? && !block.solid? && rel_y <= 0
     return unless block.solid?
 
     if can_mine?(rel_x, rel_y)

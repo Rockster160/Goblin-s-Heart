@@ -128,6 +128,7 @@ class Game
     #   q e           - bumpers
     #   space         - A / enter
     #   esc           - B / back
+    #   1,2,3,4,5     - mode switch if walking, inventory quick-access
     #
     # TODO menu organization
     #   
