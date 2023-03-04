@@ -151,6 +151,21 @@ class Game
     draw
   end
 
+  # input controller
+  # TODO extract into its own file in the game folder
+  def handle_input(key)
+    case key
+    when :game_up then
+    when :game_down then
+    when :game_left then
+    when :game_right then
+    when :game_a then
+    when :game_b then
+    when :game_l_bumper then
+    when :game_r_bumper then
+    end
+  end
+
   def instant_input(key) # Triggers as soon as it happens
     case key
     when /mousedown\(/
