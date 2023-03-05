@@ -37,6 +37,8 @@ class Board < InfiniBoard
   def clear(x, y)
     air_type = y > (GROUND_LEVEL+10) || !has_skylight?(x, y) ? CaveAir.base : Air.base 
     set([x, y], air_type)
+
+    clear(x, y + 1) if at(x, y + 1).air?
   end
 
   def air?(x, y)
