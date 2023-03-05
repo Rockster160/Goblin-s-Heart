@@ -43,9 +43,15 @@ class Player
   def try_action(rel_x, rel_y)
     if mine?
       try_mine(rel_x, rel_y)
+    elsif place?
+      try_place(rel_x, rel_y)
     else
       try_move(rel_x, rel_y)
     end
+  end
+
+  def try_place(relx, rel_y)
+    # TODO add modifier key detection
   end
 
   def try_move(rel_x, rel_y)

@@ -62,7 +62,16 @@ class Game
 
     Draw.board(visible_board) do |pencil|
       pencil.bg = Palette.air
-      pencil.paint($player.icon, [VIS_RANGE, VIS_RANGE], fg: Palette.player, bg: Palette.player_bg)
+
+      pencil.paint($player.icon, [VIS_RANGE, VIS_RANGE], fg: Palette.player, bg: Palette.player_bg) if !$player.place?
+      # TODO placing mode
+      if $player.place?
+        # set player bg to appropriate air
+        # offset player bg color into whatever direction player pressed last
+          # if player pressed left, char gets air bg, and cell to the left gets player bg
+        # on onteract, place selected block there
+      end
+      # end placing mode
 
       glinting.each do |glint_char, glint_coord|
         pencil.paint(glint_char, glint_coord)
