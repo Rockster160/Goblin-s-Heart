@@ -121,7 +121,11 @@ module Draw
       content = Colorize.color(bg, content, :bg) if bg
       content = Colorize.color(fg, content, :fg) if fg
 
-      write(content, start_coord + (h - 1))
+      # FIXME this is 40 in length lmao no idea why
+      puts(content.length) 
+      content.length.times do |w|
+        # drawat([start_coord[0] + (h - 1), start_coord[1] + (w - 1)], content[w])
+      end
     end
   end
 
